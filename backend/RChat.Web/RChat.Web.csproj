@@ -16,8 +16,4 @@
       <ProjectReference Include="..\RChat.Infrastructure\RChat.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
 </Project>

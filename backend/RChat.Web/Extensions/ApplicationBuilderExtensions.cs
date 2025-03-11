@@ -1,6 +1,6 @@
 using FluentMigrator.Runner;
 
-namespace RChat.Web;
+namespace RChat.Web.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
