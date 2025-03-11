@@ -1,11 +1,13 @@
 using RChat.Application;
 using RChat.Infrastructure;
-using RChat.Web;
+using RChat.Web.Extensions;
+using RChat.Web.Middlewares.ExceptionMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -19,6 +21,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.ApplyMigrations();
