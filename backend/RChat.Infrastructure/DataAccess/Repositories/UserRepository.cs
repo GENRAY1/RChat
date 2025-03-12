@@ -2,7 +2,6 @@ using System.Text;
 using Dapper;
 using RChat.Domain.Users;
 using RChat.Domain.Users.Repository;
-using RChat.Infrastructure.Data;
 using RChat.Infrastructure.DataAccess.Connections;
 
 namespace RChat.Infrastructure.DataAccess.Repositories;
@@ -56,7 +55,7 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
             param.Add("@Login", parameters.Login);
         }
         
-        using var connection = await connectionFactory.Create();
+        using var connection = await connectionFactory.CreateAsync();
         
         User? user = (await connection.QueryAsync<User, UserRole, User>(
             sql.ToString(),
@@ -91,7 +90,7 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
             RETURNING id;
             """;
         
-        using var connection = await connectionFactory.Create();
+        using var connection = await connectionFactory.CreateAsync();
         
         return await connection.ExecuteScalarAsync<int>(sql, user);
     }
@@ -102,7 +101,7 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
             $"""
              UPDATE public.user
              SET login = @{nameof(User.Login)},
-             username = 'Крокодил',
+             username = @{nameof(User.Username)},
              password = @{nameof(User.Password)},
              description = @{nameof(User.Description)},
              date_of_birth = @{nameof(User.DateOfBirth)},
@@ -112,7 +111,7 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
              WHERE id = @{nameof(User.Id)};
              """;
         
-        using var connection = await connectionFactory.Create();
+        using var connection = await connectionFactory.CreateAsync();
         
         return await connection.ExecuteAsync(sql, user);;
     }
