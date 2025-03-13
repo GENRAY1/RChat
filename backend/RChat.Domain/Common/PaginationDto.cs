@@ -1,6 +1,6 @@
 namespace RChat.Domain.Common;
 
-public class Pagination
+public class PaginationDto
 {
     public required int Skip { get; init; }
     public required int Take { get; init; }
