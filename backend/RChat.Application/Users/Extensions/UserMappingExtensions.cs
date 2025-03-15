@@ -11,7 +11,6 @@ public static class UserMappingExtensions
         Login = user.Login,
         Username = user.Username,
         DateOfBirth = user.DateOfBirth,
-        Password = user.Password,
         Description = user.Description,
         CreatedAt = user.CreatedAt,
         UpdatedAt = user.UpdatedAt,

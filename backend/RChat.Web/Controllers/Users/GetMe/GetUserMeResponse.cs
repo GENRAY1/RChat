@@ -1,8 +1,8 @@
 using RChat.Application.Users.CommonDtos;
 
-namespace RChat.Web.Controllers.Contracts;
+namespace RChat.Web.Controllers.Users.GetMe;
 
-public class MeResponse
+public class GetUserMeResponse
 {
     public required int Id { get; init; } 
     

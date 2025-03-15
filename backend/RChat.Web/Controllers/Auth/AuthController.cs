@@ -1,22 +1,20 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Abstractions.Services.Authentication;
-using RChat.Application.Users.GetById;
 using RChat.Application.Users.Login;
 using RChat.Application.Users.Register;
-using RChat.Web.Controllers.Contracts;
+using RChat.Web.Controllers.Auth.Login;
+using RChat.Web.Controllers.Auth.Register;
 
-namespace RChat.Web.Controllers;
+namespace RChat.Web.Controllers.Auth;
 
 [ApiController]
-[Route("api/")]
-public class AuthController(
-    ISender sender,
-    IUserContext userContext) 
+[Route("api/[controller]/[action]")]
+public class AuthController(ISender sender) 
     : ControllerBase
 {
-    [HttpPost("login")]
+    [AllowAnonymous]
+    [HttpPost]
     public async Task<ActionResult<LoginResponse>> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
@@ -36,7 +34,8 @@ public class AuthController(
         });
     }
  
-    [HttpPost("register")]
+    [AllowAnonymous]
+    [HttpPost]
     public async Task<ActionResult<RegisterResponse>> Register(
         [FromBody]RegisterRequest request,
         CancellationToken cancellationToken)
@@ -53,30 +52,6 @@ public class AuthController(
         return Ok(new RegisterResponse
         {
             Id = userId
-        });
-    }
-
-    [Authorize]
-    [HttpGet ("me")]
-    public async Task<ActionResult> Me(CancellationToken cancellationToken)
-    {
-        int userId = userContext.UserId;
-
-        var user = await sender.Send(
-            new GetUserByIdQuery
-            {
-                Id = userId
-            }, cancellationToken);
-        
-        return Ok(new MeResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Role = user.Role,
-            CreatedAt = user.CreatedAt,
-            DateOfBirth = user.DateOfBirth,
-            Description = user.Description,
-            Login = user.Login
         });
     }
 }
