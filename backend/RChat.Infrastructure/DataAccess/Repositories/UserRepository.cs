@@ -3,6 +3,7 @@ using Dapper;
 using RChat.Domain.Users;
 using RChat.Domain.Users.Repository;
 using RChat.Infrastructure.DataAccess.Connections;
+using RChat.Infrastructure.DataAccess.QueryBuilders;
 
 namespace RChat.Infrastructure.DataAccess.Repositories;
 
@@ -70,6 +71,51 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
         )).FirstOrDefault();
         
         return user;
+    }
+
+    public async Task<List<User>> GetListAsync(GetUserListParameters parameters)
+    {
+        const string defaultSql =
+            $"""
+             SELECT 
+                 u.id AS {nameof(User.Id)},
+                 u.login AS {nameof(User.Login)},
+                 u.username AS {nameof(User.Username)},
+                 u.password AS {nameof(User.Password)},
+                 u.description AS {nameof(User.Description)},
+                 u.date_of_birth AS {nameof(User.DateOfBirth)},
+                 u.created_at AS {nameof(User.CreatedAt)},
+                 u.updated_at AS {nameof(User.UpdatedAt)},
+                 u.role_id AS {nameof(User.RoleId)},
+                 r.id AS {nameof(User.UserRole.Id)},
+                 r.name AS {nameof(User.UserRole.Name)},
+                 r.description AS {nameof(User.UserRole.Description)}
+             FROM public.user AS u
+             """;
+        
+        QueryPagination? pagination = parameters.Pagination is not null
+            ? new QueryPagination(parameters.Pagination.Skip, parameters.Pagination.Take)
+            : null;
+        
+        
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
+        
+        queryBuilder.AddJoin("JOIN public.user_role AS r ON u.role_id = r.id");
+        
+        using var connection = await connectionFactory.CreateAsync();
+        
+        IEnumerable<User> users = await connection.QueryAsync<User, UserRole, User>(
+            queryBuilder.BuildQuery(),
+            (user, role) =>
+            {
+                user.UserRole = role;
+                return user;
+            }, 
+            param: queryBuilder.GetParameters(),
+            splitOn: $"{nameof(User.Id)}, {nameof(User.UserRole.Id)}"
+        );
+        
+        return users.ToList();
     }
 
     public async Task<int> CreateAsync(User user)

@@ -1,4 +1,4 @@
-namespace RChat.Web.Controllers.Contracts;
+namespace RChat.Web.Controllers.Auth.Login;
 
 public class LoginResponse
 {

@@ -1,6 +1,6 @@
-namespace RChat.Web.Controllers.Contracts;
+namespace RChat.Web.Controllers.Auth.Login;
 
-public class RegisterRequest
+public class LoginRequest
 {
     public required string Login { get; init; }
     
