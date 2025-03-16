@@ -1,6 +1,6 @@
 using RChat.Application.Users.CommonDtos;
 
-namespace RChat.Web.Controllers.Users.GetUsers;
+namespace RChat.Web.Controllers.Users.GetList;
 
 public class GetUsersResponse
 {

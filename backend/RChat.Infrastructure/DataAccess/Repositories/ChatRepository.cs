@@ -20,6 +20,7 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
                  c.type AS {nameof(Chat.Type)},
                  c.creator_id AS {nameof(Chat.CreatorId)},
                  c.created_at AS {nameof(Chat.CreatedAt)},
+                 c.deleted_at AS {nameof(Chat.DeletedAt)},
                  cg.chat_id AS {nameof(ChatGroup.ChatId)},
                  cg.name AS {nameof(ChatGroup.Name)},
                  cg.description AS {nameof(ChatGroup.Description)},
@@ -38,7 +39,8 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
                 chat.GroupChat = chatGroup;
                 return chat;
             },
-            param: new { ChatId = chatId });
+            param: new { ChatId = chatId },
+            splitOn: $"{nameof(Chat.Id)}, {nameof(ChatGroup.ChatId)}");
 
         return chats.FirstOrDefault();
     }
@@ -52,6 +54,7 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
                  c.type AS {nameof(Chat.Type)},
                  c.creator_id AS {nameof(Chat.CreatorId)},
                  c.created_at AS {nameof(Chat.CreatedAt)},
+                 c.deleted_at AS {nameof(Chat.DeletedAt)},
                  cg.chat_id AS {nameof(ChatGroup.ChatId)},
                  cg.name AS {nameof(ChatGroup.Name)},
                  cg.description AS {nameof(ChatGroup.Description)},
@@ -66,6 +69,23 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
 
         QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
         
+        if (parameters.UserIds is not null)
+        {
+            queryBuilder.AddJoin("JOIN public.member AS m ON c.id = m.chat_id AND m.user_id = ANY(@UserIds)");
+            queryBuilder.AddParameter("@UserIds", parameters.UserIds);
+        }
+
+        if (parameters.OnlyActive is true)
+        {
+            queryBuilder.AddCondition("c.deleted_at IS NULL");
+        }
+        
+        if (parameters.ChatIds is not null)
+        {
+            queryBuilder.AddCondition("c.id = ANY(@ChatIds)");
+            queryBuilder.AddParameter("@ChatIds", parameters.ChatIds);
+        }
+        
         using var connection = await connectionFactory.CreateAsync();
         
         var chats = await connection.QueryAsync<Chat, ChatGroup, Chat>(
@@ -75,7 +95,8 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
                 chat.GroupChat = chatGroup;
                 return chat;
             },
-            param: queryBuilder.GetParameters());
+            param: queryBuilder.GetParameters(),
+            splitOn: $"{nameof(Chat.Id)}, {nameof(ChatGroup.ChatId)}");
 
         return chats.ToList();
     }
@@ -131,8 +152,12 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
 
     public async Task UpdateAsync(Chat chat)
     {
-        if (chat.GroupChat is null)
-            return;
+        const string updateChatSql =
+            $"""
+             UPDATE public.chat
+             SET deleted_at = @{nameof(chat.DeletedAt)}
+             WHERE id = @{nameof(chat.Id)};
+             """;
         
         const string updateChatGroupSql =
             $"""
@@ -144,6 +169,21 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
              """;
         
         using var connection = await connectionFactory.CreateAsync();
-        await connection.ExecuteAsync(updateChatGroupSql, chat.GroupChat);
+        using var transaction = await connection.BeginTransactionAsync();
+        
+        try
+        {
+            await connection.ExecuteAsync(updateChatSql, chat, transaction);
+        
+            if (chat.GroupChat is not null)
+                await connection.ExecuteAsync(updateChatGroupSql, chat.GroupChat, transaction);
+            
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }
