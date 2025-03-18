@@ -8,7 +8,7 @@ namespace RChat.Infrastructure.DataAccess.Repositories;
 
 public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberRepository
 {
-    public async Task<Member?> GetByIdAsync(int memberId)
+    public async Task<Member?> GetAsync(GetMemberParameters parameters)
     {
         const string defaultSql =
             $"""
@@ -18,12 +18,31 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
                  m.chat_id AS {nameof(Member.ChatId)},
                  m.joined_at AS {nameof(Member.JoinedAt)}
              FROM public.member AS m
-             WHERE m.id = @MemberId
              """;
 
         using var connection = await connectionFactory.CreateAsync();
         
-        return await connection.QueryFirstOrDefaultAsync<Member>(defaultSql, new { MemberId = memberId });
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+
+        if (parameters.Id.HasValue)
+        {
+            queryBuilder.AddCondition("m.id = @Id");
+            queryBuilder.AddParameter("@Id", parameters.Id.Value);
+        }
+        
+        if (parameters.UserId.HasValue)
+        {
+            queryBuilder.AddCondition("m.user_id = @UserId");
+            queryBuilder.AddParameter("@UserId", parameters.UserId.Value);
+        }
+        
+        if (parameters.ChatId.HasValue)
+        {
+            queryBuilder.AddCondition("m.chat_id = @ChatId");
+            queryBuilder.AddParameter("@ChatId", parameters.ChatId.Value);
+        }
+        
+        return await connection.QueryFirstOrDefaultAsync<Member>(queryBuilder.BuildQuery(), queryBuilder.GetParameters());
     }
 
     public async Task<List<Member>> GetListAsync(GetMemberListParameters parameters)

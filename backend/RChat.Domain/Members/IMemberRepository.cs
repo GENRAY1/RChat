@@ -2,7 +2,7 @@ namespace RChat.Domain.Members;
 
 public interface IMemberRepository
 {
-    Task<Member?> GetByIdAsync(int memberId);
+    Task<Member?> GetAsync(GetMemberParameters parameters);
     
     Task<List<Member>> GetListAsync(GetMemberListParameters parameters);
     
