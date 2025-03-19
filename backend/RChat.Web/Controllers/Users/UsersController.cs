@@ -97,6 +97,7 @@ public class UsersController(
         List<UserDto> users = await sender.Send(
             new GetUsersQuery
             {
+                Sorting = request.Sorting,
                 Pagination = new PaginationDto
                 {
                     Skip = request.Skip,

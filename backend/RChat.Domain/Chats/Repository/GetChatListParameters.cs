@@ -7,7 +7,8 @@ public class GetChatListParameters
     public int[]? UserIds { get; init; }
     public int[]? ChatIds { get; init; }
     public ChatType? Type { get; init; }
-    
     public bool? OnlyActive { get; init; }
+    
+    public SortingDto<ChatSortingColumn>? Sorting{ get; set; }
     public PaginationDto? Pagination { get; set; }
 }

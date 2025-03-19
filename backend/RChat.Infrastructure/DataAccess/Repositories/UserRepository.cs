@@ -93,12 +93,25 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
              FROM public.user AS u
              """;
         
-        QueryPagination? pagination = parameters.Pagination is not null
-            ? new QueryPagination(parameters.Pagination.Skip, parameters.Pagination.Take)
-            : null;
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+
+        if (parameters.Pagination is not null)
+        {
+            queryBuilder.AddPagination(parameters.Pagination);
+        }
         
-        
-        QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
+        if (parameters.Sorting is not null)
+        {
+            var sortingColumnDbMapping = new Dictionary<UserSortingColumn, string>
+            {
+                { UserSortingColumn.CreatedAt, "u.created_at" },
+                { UserSortingColumn.DateOfBirth, "u.date_of_birth" },
+                { UserSortingColumn.Username, "u.username" },
+                { UserSortingColumn.RoleName, "r.name" },
+            };
+            
+            queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
+        }
         
         queryBuilder.AddJoin("JOIN public.user_role AS r ON u.role_id = r.id");
         

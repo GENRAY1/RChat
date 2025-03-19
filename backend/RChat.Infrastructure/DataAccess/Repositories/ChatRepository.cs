@@ -62,12 +62,27 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
              FROM public.chat AS c
              LEFT JOIN public.chat_group AS cg ON cg.chat_id = c.id
              """;
-        
-        QueryPagination? pagination = parameters.Pagination is not null
-            ? new QueryPagination(parameters.Pagination.Skip, parameters.Pagination.Take)
-            : null;
 
-        QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+
+        if (parameters.Pagination is not null)
+        {
+            queryBuilder.AddPagination(parameters.Pagination);
+        }
+        
+        if (parameters.Sorting is not null)
+        {
+            var sortingColumnDbMapping = new Dictionary<ChatSortingColumn, string>
+            {
+                { ChatSortingColumn.CreatedAt, "c.created_at" },
+                { ChatSortingColumn.DeletedAt, "c.deleted_at" },
+                { ChatSortingColumn.Type, "c.type" },
+                { ChatSortingColumn.GroupName, "cg.name" },
+                { ChatSortingColumn.GroupIsPrivate, "cg.is_private" }
+            };
+            
+            queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
+        }
         
         if (parameters.UserIds is not null)
         {

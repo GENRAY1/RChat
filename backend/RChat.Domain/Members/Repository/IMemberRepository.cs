@@ -1,4 +1,4 @@
-namespace RChat.Domain.Members;
+namespace RChat.Domain.Members.Repository;
 
 public interface IMemberRepository
 {

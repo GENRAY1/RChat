@@ -1,6 +1,4 @@
-using RChat.Domain.Members;
-
-namespace RChat.Domain.Messages;
+namespace RChat.Domain.Messages.Repository;
 
 public interface IMessageRepository
 {

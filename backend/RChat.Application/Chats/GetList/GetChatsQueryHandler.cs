@@ -14,6 +14,7 @@ public class GetChatsQueryHandler(IChatRepository chatRepository)
         List<Chat> chats = await chatRepository.GetListAsync(
             new GetChatListParameters
             {
+                Sorting = request.Sorting,
                 Pagination = request.Pagination
             });
         

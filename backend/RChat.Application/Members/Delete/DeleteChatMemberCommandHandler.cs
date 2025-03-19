@@ -3,6 +3,7 @@ using RChat.Application.Exceptions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
+using RChat.Domain.Members.Repository;
 
 namespace RChat.Application.Members.Delete;
 

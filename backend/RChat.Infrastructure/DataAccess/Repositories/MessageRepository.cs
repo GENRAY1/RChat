@@ -1,6 +1,7 @@
 using Dapper;
 using RChat.Domain.Members;
 using RChat.Domain.Messages;
+using RChat.Domain.Messages.Repository;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -47,11 +48,22 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
 
         using var connection = await connectionFactory.CreateAsync();
 
-        QueryPagination? pagination = parameters.Pagination is not null
-            ? new QueryPagination(parameters.Pagination.Skip, parameters.Pagination.Take)
-            : null;
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
 
-        QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
+        if (parameters.Pagination is not null)
+        {
+            queryBuilder.AddPagination(parameters.Pagination);
+        }
+        
+        if (parameters.Sorting is not null)
+        {
+            var sortingColumnDbMapping = new Dictionary<MessageSortingColumn, string>
+            {
+                { MessageSortingColumn.CreatedAt, "m.created_at" }
+            };
+            
+            queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
+        }
 
         var messages = await connection.QueryAsync<Message>(
             queryBuilder.BuildQuery(),
