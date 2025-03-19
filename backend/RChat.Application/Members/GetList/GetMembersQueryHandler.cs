@@ -1,6 +1,7 @@
 using RChat.Application.Abstractions.Messaging;
 using RChat.Application.Members.Dtos;
 using RChat.Domain.Members;
+using RChat.Domain.Members.Repository;
 
 namespace RChat.Application.Members.GetList;
 
@@ -13,6 +14,7 @@ public class GetMembersQueryHandler(IMemberRepository memberRepository)
             await memberRepository.GetListAsync(new GetMemberListParameters
             {
                 Pagination = request.Pagination,
+                Sorting = request.Sorting,
                 ChatIds = request.ChatId.HasValue 
                     ? [request.ChatId.Value] 
                     : null

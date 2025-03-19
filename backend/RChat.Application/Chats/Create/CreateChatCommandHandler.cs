@@ -3,6 +3,7 @@ using RChat.Application.Exceptions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
+using RChat.Domain.Members.Repository;
 using RChat.Domain.Users.Repository;
 
 namespace RChat.Application.Chats.Create;

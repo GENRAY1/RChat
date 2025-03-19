@@ -1,8 +1,9 @@
 using RChat.Domain.Common;
 
-namespace RChat.Domain.Messages;
+namespace RChat.Domain.Messages.Repository;
 
 public class GetMessageListParameters
 {
+    public SortingDto<MessageSortingColumn>? Sorting { get; set; }
     public PaginationDto? Pagination { get; set; }
 }

@@ -57,6 +57,7 @@ public class ChatsController(
     {
         List<ChatDto> chats = await sender.Send(new GetChatsQuery()
         {
+            Sorting = request.Sorting,
             Pagination = new PaginationDto
             {
                 Skip = request.Skip,
@@ -64,7 +65,7 @@ public class ChatsController(
             }
         }, cancellationToken);
 
-        return Ok(new GetChatsResponse
+         return Ok(new GetChatsResponse
         {
             Chats = chats
         });
@@ -165,6 +166,7 @@ public class ChatsController(
     {
         List<MemberDto> members = await sender.Send(new GetMembersQuery
         {
+            Sorting = request.Sorting,
             Pagination = new PaginationDto
             {
                 Skip = request.Skip,

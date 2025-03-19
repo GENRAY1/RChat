@@ -14,6 +14,7 @@ public class GetUsersQueryHandler(IUserRepository userRepository)
         List<User> users = await userRepository.GetListAsync(
             new GetUserListParameters
             {
+                Sorting = request.Sorting,
                 Pagination = request.Pagination
             });
         

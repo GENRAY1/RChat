@@ -3,6 +3,7 @@ using RChat.Application.Users.Extensions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
+using RChat.Domain.Members.Repository;
 using RChat.Domain.Users;
 using RChat.Domain.Users.Repository;
 
