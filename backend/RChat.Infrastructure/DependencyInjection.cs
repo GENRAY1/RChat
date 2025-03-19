@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Domain.Chats.Repository;
+using RChat.Domain.Members;
+using RChat.Domain.Messages;
 using RChat.Domain.Users.Repository;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.Repositories;
@@ -37,7 +40,12 @@ public static class DependencyInjection
                 .WithGlobalConnectionString(connectionString)
                 .ScanIn(typeof(DependencyInjection).Assembly).For.Migrations()) 
             .AddLogging(lb => lb.AddFluentMigratorConsole());
+        
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IMemberRepository, MemberRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        
     }
 
     private static void AddSwaggerService(this IServiceCollection services)

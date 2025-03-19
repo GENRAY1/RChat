@@ -1,6 +1,4 @@
-using RChat.Domain.Common;
-
-namespace RChat.Web.Controllers.Users.GetUsers;
+namespace RChat.Web.Controllers.Users.GetList;
 
 public class GetUsersRequest
 {

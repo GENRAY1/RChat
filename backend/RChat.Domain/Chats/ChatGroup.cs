@@ -9,9 +9,9 @@ public class ChatGroup
     
     public int ChatId { get; init; }
     
-    public required string Name { get; init; }
+    public required string Name { get; set; }
     
-    public string? Description { get; init; }
+    public string? Description { get; set; }
     
-    public required bool IsPrivate { get; init; }
+    public required bool IsPrivate { get; set; }
 }

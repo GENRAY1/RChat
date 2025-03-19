@@ -2,14 +2,16 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Application.Chats.GetListForUser;
 using RChat.Application.Users.CommonDtos;
 using RChat.Application.Users.GetById;
 using RChat.Application.Users.GetList;
 using RChat.Application.Users.Update;
 using RChat.Domain.Common;
 using RChat.Web.Controllers.Users.GetById;
+using RChat.Web.Controllers.Users.GetList;
 using RChat.Web.Controllers.Users.GetMe;
-using RChat.Web.Controllers.Users.GetUsers;
+using RChat.Web.Controllers.Users.GetMeChats;
 using RChat.Web.Controllers.Users.Update;
 
 namespace RChat.Web.Controllers.Users;
@@ -42,6 +44,25 @@ public class UsersController(
             DateOfBirth = user.DateOfBirth,
             Description = user.Description,
             Login = user.Login
+        });
+    }
+    
+    [Authorize]
+    [HttpGet("me/chats")]
+    public async Task<ActionResult<GetUserMeResponse>> GetMeChats(
+        CancellationToken cancellationToken)
+    {
+        
+        int userId = userContext.UserId;
+
+        var chats = await sender.Send(new GetChatsForUserQuery
+        {
+            UserId = userId
+        }, cancellationToken);
+        
+        return Ok(new GetMeChatsResponse
+        {
+            Chats = chats
         });
     }
 

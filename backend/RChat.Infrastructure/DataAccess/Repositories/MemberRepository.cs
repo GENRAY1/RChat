@@ -1,5 +1,6 @@
 using Dapper;
 using RChat.Domain.Members;
+using RChat.Domain.Users;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -7,7 +8,7 @@ namespace RChat.Infrastructure.DataAccess.Repositories;
 
 public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberRepository
 {
-    public async Task<Member?> GetByIdAsync(int memberId)
+    public async Task<Member?> GetAsync(GetMemberParameters parameters)
     {
         const string defaultSql =
             $"""
@@ -17,12 +18,31 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
                  m.chat_id AS {nameof(Member.ChatId)},
                  m.joined_at AS {nameof(Member.JoinedAt)}
              FROM public.member AS m
-             WHERE m.id = @MemberId
              """;
 
         using var connection = await connectionFactory.CreateAsync();
         
-        return await connection.QueryFirstOrDefaultAsync<Member>(defaultSql, new { MemberId = memberId });
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+
+        if (parameters.Id.HasValue)
+        {
+            queryBuilder.AddCondition("m.id = @Id");
+            queryBuilder.AddParameter("@Id", parameters.Id.Value);
+        }
+        
+        if (parameters.UserId.HasValue)
+        {
+            queryBuilder.AddCondition("m.user_id = @UserId");
+            queryBuilder.AddParameter("@UserId", parameters.UserId.Value);
+        }
+        
+        if (parameters.ChatId.HasValue)
+        {
+            queryBuilder.AddCondition("m.chat_id = @ChatId");
+            queryBuilder.AddParameter("@ChatId", parameters.ChatId.Value);
+        }
+        
+        return await connection.QueryFirstOrDefaultAsync<Member>(queryBuilder.BuildQuery(), queryBuilder.GetParameters());
     }
 
     public async Task<List<Member>> GetListAsync(GetMemberListParameters parameters)
@@ -33,8 +53,18 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
                  m.id AS {nameof(Member.Id)},
                  m.user_id AS {nameof(Member.UserId)},
                  m.chat_id AS {nameof(Member.ChatId)},
-                 m.joined_at AS {nameof(Member.JoinedAt)}
+                 m.joined_at AS {nameof(Member.JoinedAt)},
+                 u.id AS {nameof(Member.User.Id)},
+                 u.username AS {nameof(Member.User.Username)},
+                 u.login AS {nameof(Member.User.Login)},
+                 u.password AS {nameof(Member.User.Password)},
+                 u.description AS {nameof(Member.User.Description)},
+                 u.date_of_birth AS {nameof(Member.User.DateOfBirth)},
+                 u.created_at AS {nameof(Member.User.CreatedAt)},
+                 u.updated_at AS {nameof(Member.User.UpdatedAt)},
+                 u.role_id AS {nameof(Member.User.RoleId)}
              FROM public.member AS m
+             JOIN public.user AS u ON m.user_id = u.id
              """;
         
         using var connection = await connectionFactory.CreateAsync();
@@ -45,9 +75,30 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
 
         QueryBuilder queryBuilder = new QueryBuilder(defaultSql, pagination);
         
-        var members = await connection.QueryAsync<Member>(
-            queryBuilder.BuildQuery(),
-            param: queryBuilder.GetParameters());
+        if(parameters.ChatIds is not null)
+        {
+            queryBuilder.AddCondition("m.chat_id=ANY(@ChatIds)");
+            queryBuilder.AddParameter("@ChatIds", parameters.ChatIds);
+        }
+        
+        if(parameters.UserIds is not null)
+        {
+            queryBuilder.AddCondition("m.user_id=ANY(@UserIds)");
+            queryBuilder.AddParameter("@UserIds", parameters.UserIds);
+        }
+        
+        string sql = queryBuilder.BuildQuery();
+
+        var members = await connection.QueryAsync<Member, User, Member>(
+            sql,
+            (member, user) =>
+            {
+                member.User = user;
+                return member;
+            },
+            param: queryBuilder.GetParameters(),
+            splitOn: $"{nameof(Member.Id)}, {nameof(Member.User.Id)}"
+        );
         
         return members.ToList();
     }
@@ -71,6 +122,44 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
         var memberId = await connection.ExecuteScalarAsync<int>(defaultSql, member);
         
         return memberId;
+    }
+    
+    public async Task<int[]> CreateAsync(IEnumerable<Member> members)
+    {
+        const string defaultSql =
+            $"""
+             INSERT INTO public.member
+             (user_id, chat_id, joined_at)
+             VALUES (
+                @{nameof(Member.UserId)},
+                @{nameof(Member.ChatId)},
+                @{nameof(Member.JoinedAt)}
+             )
+             RETURNING id;
+             """;
+
+        using var connection = await connectionFactory.CreateAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            var memberIds = new List<int>();
+
+            foreach (var member in members)
+            {
+                var memberId = await connection.ExecuteScalarAsync<int>(defaultSql, member, transaction);
+                memberIds.Add(memberId);
+            }
+
+            await transaction.CommitAsync();
+
+            return memberIds.ToArray();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task DeleteAsync(int memberId)
