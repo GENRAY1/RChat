@@ -114,7 +114,7 @@ public class ChatsController(
     }
 
     [Authorize]
-    [HttpPatch(("{chatId:int}/soft-delete"))]
+    [HttpDelete(("{chatId:int}"))]
     public async Task<ActionResult<GetChatByIdResponse>> SoftDelete(
         [FromRoute] int chatId,
         CancellationToken cancellationToken)
