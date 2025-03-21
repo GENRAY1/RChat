@@ -1,5 +1,6 @@
 using RChat.Application.Abstractions.Messaging;
 using RChat.Application.Messages.Dtos;
+using RChat.Application.Messages.Extensions;
 using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
 
@@ -19,15 +20,8 @@ public class GetMessagesQueryHandler(
                 Sorting = request.Sorting
             });
 
-        return messages.Select(message => new MessageDto
-        {
-            Id = message.Id,
-            ChatId = message.ChatId,
-            CreatedAt = message.CreatedAt,
-            ReplyToMessageId = message.ReplyToMessageId,
-            SenderId = message.SenderId,
-            Text = message.Text,
-            UpdatedAt = message.UpdatedAt
-        }).ToList();
+        return messages
+            .Select(message => message.MappingToDto())
+            .ToList();
     }
 }
