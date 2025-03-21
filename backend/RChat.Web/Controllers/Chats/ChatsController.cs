@@ -12,10 +12,14 @@ using RChat.Application.Members.Create;
 using RChat.Application.Members.Delete;
 using RChat.Application.Members.Dtos;
 using RChat.Application.Members.GetList;
+using RChat.Application.Messages.Dtos;
+using RChat.Application.Messages.GetList;
 using RChat.Domain.Common;
+using RChat.Domain.Messages;
 using RChat.Web.Controllers.Chats.Create;
 using RChat.Web.Controllers.Chats.GetById;
 using RChat.Web.Controllers.Chats.GetChatMembers;
+using RChat.Web.Controllers.Chats.GetChatMessages;
 using RChat.Web.Controllers.Chats.GetList;
 using RChat.Web.Controllers.Chats.Join;
 using RChat.Web.Controllers.Chats.Update;
@@ -26,7 +30,7 @@ namespace RChat.Web.Controllers.Chats;
 [Route("api/[controller]/")]
 public class ChatsController(
     ISender sender,
-    IUserContext userContext) 
+    IUserContext userContext)
     : ControllerBase
 {
     [Authorize]
@@ -65,7 +69,7 @@ public class ChatsController(
             }
         }, cancellationToken);
 
-         return Ok(new GetChatsResponse
+        return Ok(new GetChatsResponse
         {
             Chats = chats
         });
@@ -105,12 +109,12 @@ public class ChatsController(
             ChatId = chatId,
             GroupDetails = request.GroupDetails
         }, cancellationToken);
-        
+
         return Ok();
     }
-    
+
     [Authorize]
-    [HttpPatch(("{chatId:int}/soft-delete"))]
+    [HttpDelete(("{chatId:int}"))]
     public async Task<ActionResult<GetChatByIdResponse>> SoftDelete(
         [FromRoute] int chatId,
         CancellationToken cancellationToken)
@@ -119,7 +123,7 @@ public class ChatsController(
         {
             ChatId = chatId
         }, cancellationToken);
-        
+
         return Ok();
     }
 
@@ -141,9 +145,9 @@ public class ChatsController(
             MemberId = memberId
         });
     }
-    
+
     [Authorize]
-    [HttpPost("{chatId:int}/leave")] 
+    [HttpPost("{chatId:int}/leave")]
     public async Task<ActionResult> LeaveChat(
         [FromRoute] int chatId,
         CancellationToken cancellationToken)
@@ -153,12 +157,12 @@ public class ChatsController(
             ChatId = chatId,
             UserId = userContext.UserId
         }, cancellationToken);
-        
+
         return Ok();
     }
-    
+
     [Authorize]
-    [HttpGet("{chatId:int}/members")] 
+    [HttpGet("{chatId:int}/members")]
     public async Task<ActionResult<GetChatMembersResponse>> GetMembers(
         [FromRoute] int chatId,
         [FromQuery] GetChatMembersRequest request,
@@ -174,11 +178,39 @@ public class ChatsController(
             },
             ChatId = chatId
         }, cancellationToken);
-        
+
         return Ok(new GetChatMembersResponse
         {
             Members = members
         });
     }
-    
+
+    [Authorize]
+    [HttpGet("{chatId:int}/messages")]
+    public async Task<ActionResult<GetChatMessagesResponse>> GetMessages(
+        [FromRoute] int chatId,
+        [FromQuery] GetChatMessagesRequest request,
+        CancellationToken cancellationToken)
+    {
+        List<MessageDto> messages = await sender.Send(
+            new GetMessagesQuery
+            {
+                Sorting = new SortingDto<MessageSortingColumn>
+                {
+                    Column = MessageSortingColumn.CreatedAt,
+                    Direction = SortingDirection.Desc
+                },
+                Pagination = new PaginationDto
+                {
+                    Skip = request.Skip,
+                    Take = request.Take
+                },
+                ChatId = chatId
+            }, cancellationToken);
+
+        return Ok(new GetChatMessagesResponse()
+        {
+            Messages = messages
+        });
+    }
 }

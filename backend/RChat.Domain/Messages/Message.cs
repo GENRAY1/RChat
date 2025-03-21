@@ -16,5 +16,6 @@ public class Message : Entity
     
     public required DateTime CreatedAt { get; init; }
     
+    public DateTime? DeletedAt { get; set; } 
     public DateTime? UpdatedAt { get; set; }
 }

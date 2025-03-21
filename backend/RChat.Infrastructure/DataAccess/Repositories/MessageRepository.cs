@@ -65,6 +65,12 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
             queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
         }
 
+        if (parameters.ChatId is not null)
+        {
+            queryBuilder.AddCondition("m.chat_id = @ChatId");
+            queryBuilder.AddParameter("@ChatId", parameters.ChatId.Value);
+        }
+
         var messages = await connection.QueryAsync<Message>(
             queryBuilder.BuildQuery(),
             queryBuilder.GetParameters());
