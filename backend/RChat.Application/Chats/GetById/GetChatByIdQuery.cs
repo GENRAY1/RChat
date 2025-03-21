@@ -5,5 +5,5 @@ namespace RChat.Application.Chats.GetById;
 
 public class GetChatByIdQuery : IQuery<ChatDto>
 {
-    public required int ChatId { get; set; }
+    public required int ChatId { get; init; }
 }

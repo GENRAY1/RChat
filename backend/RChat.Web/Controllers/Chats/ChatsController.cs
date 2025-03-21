@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Application.Chats.CheckAccess;
 using RChat.Application.Chats.Create;
 using RChat.Application.Chats.Dtos;
 using RChat.Application.Chats.GetById;
