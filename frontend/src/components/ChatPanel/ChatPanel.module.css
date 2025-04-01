@@ -1,0 +1,37 @@
+.userPanel {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border-right: 1px solid #ece4e4;
+    background-color: #FFF;
+}
+.header {
+    flex-shrink: 0;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    padding-left: 12px;
+    padding-right: 12px;
+    top: 0;
+    z-index: 1;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #eaeaea;
+    font-size: 14px;
+}
+
+.content{
+    overflow-y: auto;
+}
+
+@media (max-width: 860px) {
+    .userPanel {
+        display: none;
+    }
+}

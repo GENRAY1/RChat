@@ -2,7 +2,7 @@ import {FC} from "react";
 import {Route, Routes} from "react-router-dom";
 import LoginPage from "./pages/LoginPage.tsx";
 import ProtectedRoute from "./auth/components/ProtectedRoute.tsx";
-import MainPage from "./pages/MainPage.tsx";
+import MainPage from "./pages/MainPage/MainPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 
 const App: FC = () => {
