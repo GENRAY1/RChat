@@ -1,14 +1,14 @@
 import {createContext} from "react";
 import {AuthUser} from "../models/user/AuthUser.ts";
 
-export type Auth = {
+export type AuthData = {
     token: string | null,
     user: AuthUser | null
     login: (token:string) => void,
     logout: () => void,
 }
 
-const AuthContext = createContext<Auth>({
+const AuthContext = createContext<AuthData>({
     token: null,
     user: null,
     login: () : void => {

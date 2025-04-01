@@ -1,0 +1,17 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background: #293A4C;
+    align-items: center;
+}
+.header{
+    height: 65px;
+    display: flex;
+    align-items: center;
+}
+
+.menuIcon{
+    width: 25px;
+    height: 25px;
+    fill: #697989;
+}

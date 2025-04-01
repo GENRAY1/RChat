@@ -1,0 +1,30 @@
+.sidebarItem{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 6px;
+    width: 100%;
+    background: inherit;
+    border: none;
+}
+
+.sidebarIcon{
+    width: 34px;
+    height: 34px;
+    fill: #697989
+}
+
+.sidebarLabel{
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    color:#697989;
+}
+
+.sidebarItem:hover{
+    background: #17212B;
+}

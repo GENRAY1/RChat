@@ -1,0 +1,6 @@
+.container {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    height: 100vh;
+    background-image: url("../../shared/imgs/bg.png");
+}

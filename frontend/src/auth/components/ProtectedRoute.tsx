@@ -1,9 +1,9 @@
 import { FC, useContext } from "react"
 import {Navigate, Outlet} from "react-router-dom"
-import AuthContext, { Auth } from "../auth-context"
+import AuthContext, { AuthData } from "../auth-context"
 
 const ProtectedRoute : FC = () => {
-    const token = useContext<Auth>(AuthContext)
+    const token = useContext<AuthData>(AuthContext)
 
     if(!token.token)
         return <Navigate to="/login"/>

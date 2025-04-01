@@ -11,13 +11,13 @@ import {
 } from '@mui/material';
 import {Link, useNavigate} from "react-router-dom";
 import {AuthService} from "../api/auth-service/AuthService.ts";
-import AuthContext, {Auth} from "../auth/auth-context.ts";
+import AuthContext, {AuthData} from "../auth/auth-context.ts";
 import {LoginResponse} from "../api/auth-service/auth-contracts.ts";
 const LoginPage: FC = () => {
 
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const authContext : Auth = useContext(AuthContext)
+    const authContext : AuthData = useContext(AuthContext)
     const navigate = useNavigate();
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
