@@ -1,4 +1,5 @@
 using RChat.Application.Messages.Dtos;
+using RChat.Application.Users.CommonDtos;
 using RChat.Domain.Messages;
 
 namespace RChat.Application.Messages.Extensions;
@@ -11,9 +12,15 @@ public static class MessageMappingExtensions
         ChatId = message.ChatId,
         CreatedAt = message.CreatedAt,
         ReplyToMessageId = message.ReplyToMessageId,
-        SenderId = message.SenderId,
         Text = message.Text,
         UpdatedAt = message.UpdatedAt,
-        DeletedAt = message.DeletedAt
+        DeletedAt = message.DeletedAt,
+        Sender = new MessageSenderDto
+        {
+            UserId = message.Sender.Id,
+            Firstname = message.Sender.Firstname,
+            Lastname = message.Sender.Lastname,
+            Username = message.Sender.Username,
+        }
     };
 }

@@ -1,3 +1,5 @@
+using RChat.Application.Users.CommonDtos;
+
 namespace RChat.Application.Messages.Dtos;
 
 public class MessageDto
@@ -8,8 +10,6 @@ public class MessageDto
     
     public required int ChatId { get; init; }
     
-    public required int SenderId { get; init; }
-    
     public int? ReplyToMessageId { get; init; }
     
     public required DateTime CreatedAt { get; init; }
@@ -17,4 +17,6 @@ public class MessageDto
     public DateTime? UpdatedAt { get; init; }
     
     public DateTime? DeletedAt { get; init; }
+    
+    public required MessageSenderDto Sender { get; init; }
 }

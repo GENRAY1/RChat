@@ -4,7 +4,9 @@ namespace RChat.Domain.Messages.Repository;
 
 public class GetMessageListParameters
 {
-    public int? ChatId { get; init; }
-    public SortingDto<MessageSortingColumn>? Sorting { get; init; }
-    public PaginationDto? Pagination { get; init; }
+    public int? ChatId { get; set; }
+    
+    public bool? OnlyActive { get; set; }
+    public SortingDto<MessageSortingColumn>? Sorting { get; set; }
+    public PaginationDto? Pagination { get; set; }
 }

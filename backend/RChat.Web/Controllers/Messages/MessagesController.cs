@@ -5,9 +5,6 @@ using RChat.Application.Messages.Create;
 using RChat.Application.Messages.Dtos;
 using RChat.Application.Messages.SoftDelete;
 using RChat.Application.Messages.Update;
-using RChat.Web.Controllers.Messages.Create;
-using RChat.Web.Controllers.Messages.Delete;
-using RChat.Web.Controllers.Messages.Update;
 using RChat.Web.Hubs.Chats;
 
 namespace RChat.Web.Controllers.Messages;
@@ -41,54 +38,41 @@ public class MessagesController(
     
     [HttpPut]
     [Route("{messageId:int}")]
-    public async Task<ActionResult<UpdateMessageResponse>> Update(
+    public async Task<ActionResult<UpdateMessageDtoResponse>> Update(
         [FromRoute]int messageId,
         [FromBody]UpdateMessageRequest request,
         CancellationToken cancellationToken)
     {
-        MessageDto message = await sender.Send(
+        UpdateMessageDtoResponse updatedMessage = await sender.Send(
             new UpdateMessageCommand
             {
                 MessageId = messageId,
                 Text = request.Text
             }, cancellationToken);
         
-        var updateMessageResponse = new UpdateMessageResponse
-        {
-            UpdatedAt = message.UpdatedAt!.Value,
-            Text = message.Text,
-            MessageId = message.Id,
-        };
-
         await chatHub.Clients
-            .Group(message.ChatId.ToString())
-            .SendAsync(ChatHubEvents.MessageUpdated, updateMessageResponse, cancellationToken);
+            .Group(updatedMessage.ChatId.ToString())
+            .SendAsync(ChatHubEvents.MessageUpdated, updatedMessage, cancellationToken);
         
-        return Ok(updateMessageResponse);
+        return Ok(updatedMessage);
     }
     
     [HttpDelete]
     [Route("{messageId:int}")]
-    public async Task<ActionResult<DeleteMessageResponse>> Delete(
+    public async Task<ActionResult<DeleteMessageDtoResponse>> Delete(
         [FromRoute]int messageId,
         CancellationToken cancellationToken)
     {
-        MessageDto message = await sender.Send(
+        DeleteMessageDtoResponse deletedMessage = await sender.Send(
             new SoftDeleteMessageCommand
             {
                 MessageId = messageId,
             }, cancellationToken);
-
-        var deleteMessageResponse = new DeleteMessageResponse
-        {
-            DeletedAt = message.DeletedAt!.Value,
-            MessageId = message.Id,
-        };
-
-        await chatHub.Clients
-            .Group(message.ChatId.ToString())
-            .SendAsync(ChatHubEvents.MessageDeleted, deleteMessageResponse, cancellationToken);
         
-        return Ok(deleteMessageResponse);
+        await chatHub.Clients
+            .Group(deletedMessage.ChatId.ToString())
+            .SendAsync(ChatHubEvents.MessageDeleted, deletedMessage, cancellationToken);
+        
+        return Ok(deletedMessage);
     }
 }

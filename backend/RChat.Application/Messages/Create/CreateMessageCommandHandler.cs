@@ -58,8 +58,14 @@ public class CreateMessageCommandHandler(
             ChatId = message.ChatId,
             CreatedAt = message.CreatedAt,
             ReplyToMessageId = message.ReplyToMessageId,
-            SenderId = message.SenderId,
-            Text = message.Text
+            Text = message.Text,
+            Sender = new MessageSenderDto
+            {
+                UserId = authUser.Id,
+                Lastname = authUser.Lastname,
+                Firstname = authUser.Firstname,
+                Username = authUser.Username
+            }
         };
     }
 }

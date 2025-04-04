@@ -22,6 +22,17 @@ public class GetChatMessagesQueryHandler(
 {
     public async Task<List<MessageDto>> Handle(GetChatMessagesQuery request, CancellationToken cancellationToken)
     {
+        var parameters = new GetMessageListParameters
+        {
+            ChatId = request.ChatId,
+            Pagination = request.Pagination,
+            Sorting = new SortingDto<MessageSortingColumn>
+            {
+                Column = MessageSortingColumn.CreatedAt,
+                Direction = SortingDirection.Desc
+            }
+        };
+        
         if (authContext.Role == AccountRole.User.Name)
         {
             User authUser = await authContext.GetUserAsync();
@@ -34,20 +45,12 @@ public class GetChatMessagesQueryHandler(
             
             if (member is null)
                 throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
+            
+            parameters.OnlyActive = true;
         }
         
-        
         List<Message> messages =
-            await messageRepository.GetListAsync(new GetMessageListParameters
-            {
-                ChatId = request.ChatId,
-                Pagination = request.Pagination,
-                Sorting = new SortingDto<MessageSortingColumn>
-                {
-                    Column = MessageSortingColumn.CreatedAt,
-                    Direction = SortingDirection.Desc
-                }
-            });
+            await messageRepository.GetListAsync(parameters);
 
         return messages
             .Select(message => message.MappingToDto())
