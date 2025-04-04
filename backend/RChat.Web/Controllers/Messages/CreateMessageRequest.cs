@@ -1,4 +1,4 @@
-namespace RChat.Web.Controllers.Messages.Create;
+namespace RChat.Web.Controllers.Messages;
 
 public class CreateMessageRequest
 {

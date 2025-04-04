@@ -2,6 +2,7 @@ using Dapper;
 using RChat.Domain.Members;
 using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
+using RChat.Domain.Users;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -43,14 +44,29 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
                  m.reply_to_message_id AS {nameof(Message.ReplyToMessageId)},
                  m.created_at AS {nameof(Message.CreatedAt)},
                  m.updated_at AS {nameof(Message.UpdatedAt)},
-                 m.deleted_at AS {nameof(Message.DeletedAt)}
+                 m.deleted_at AS {nameof(Message.DeletedAt)},
+                 u.id AS {nameof(Message.Sender.Id)},
+                 u.account_id AS {nameof(Message.Sender.AccountId)},
+                 u.username AS {nameof(Message.Sender.Username)},
+                 u.firstname AS {nameof(Message.Sender.Firstname)},
+                 u.lastname AS {nameof(Message.Sender.Lastname)},
+                 u.description AS {nameof(Message.Sender.Description)},
+                 u.date_of_birth AS {nameof(Message.Sender.DateOfBirth)},
+                 u.created_at AS {nameof(Message.Sender.CreatedAt)},
+                 u.updated_at AS {nameof(Message.Sender.UpdatedAt)}
              FROM public.message AS m
+             JOIN public.user AS u ON u.id = m.sender_id
              """;
 
         using var connection = await connectionFactory.CreateAsync();
 
         QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
 
+        if (parameters.OnlyActive is not null)
+        {
+            queryBuilder.AddCondition("m.deleted_at IS NULL");
+        }
+        
         if (parameters.Pagination is not null)
         {
             queryBuilder.AddPagination(parameters.Pagination);
@@ -72,9 +88,16 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
             queryBuilder.AddParameter("@ChatId", parameters.ChatId.Value);
         }
 
-        var messages = await connection.QueryAsync<Message>(
+        var messages = await connection.QueryAsync<Message, User, Message>(
             queryBuilder.BuildQuery(),
-            queryBuilder.GetParameters());
+            (message, user) =>
+            {
+                message.Sender = user;
+                
+                return message;
+            },
+        queryBuilder.GetParameters(),
+            splitOn:$"{nameof(Message.Id)}, {nameof(Message.Sender.Id)}");
 
         return messages.ToList();
     }

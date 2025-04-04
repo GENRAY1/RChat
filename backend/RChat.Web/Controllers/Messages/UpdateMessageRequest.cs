@@ -1,4 +1,4 @@
-namespace RChat.Web.Controllers.Messages.Update;
+namespace RChat.Web.Controllers.Messages;
 
 public class UpdateMessageRequest
 {
