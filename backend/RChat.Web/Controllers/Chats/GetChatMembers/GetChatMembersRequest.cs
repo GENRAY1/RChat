@@ -7,7 +7,7 @@ public class GetChatMembersRequest
 {
     public SortingDto<MemberSortingColumn>? Sorting { get; init; }
     
-    public int Skip { get; init; }
+    public required int Skip { get; init; }
     
-    public int Take { get; init; }
+    public required int Take { get; init; }
 }

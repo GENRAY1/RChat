@@ -10,6 +10,7 @@ using RChat.Domain.Users.Repository;
 namespace RChat.Application.Chats.Create;
 
 public class CreatePrivateChatAsync(
+    User creator,
     IChatRepository chatRepository,
     IUserRepository userRepository,
     IMemberRepository memberRepository)
@@ -22,9 +23,6 @@ public class CreatePrivateChatAsync(
 
         User recipient =
             await userRepository.GetByIdOrThrowAsync(request.RecipientId.Value);
-
-        User creator =
-            await userRepository.GetByIdOrThrowAsync(request.CreatorId);
         
         bool hasSharedPrivateChat = await HasSharedPrivateChat(creator.Id, recipient.Id);
 

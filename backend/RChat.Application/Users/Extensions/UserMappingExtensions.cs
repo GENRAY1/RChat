@@ -8,12 +8,13 @@ public static class UserMappingExtensions
     public static UserDto MappingToDto(this User user) => new UserDto
     {
         Id = user.Id,
-        Login = user.Login,
+        AccountId = user.AccountId,
         Username = user.Username,
         DateOfBirth = user.DateOfBirth,
         Description = user.Description,
         CreatedAt = user.CreatedAt,
         UpdatedAt = user.UpdatedAt,
-        Role = user.UserRole.MappingToDto()
+        Lastname = user.Lastname,
+        Firstname = user.Firstname
     };
 }

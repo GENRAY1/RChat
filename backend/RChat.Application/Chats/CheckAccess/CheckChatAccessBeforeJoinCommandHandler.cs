@@ -5,13 +5,14 @@ using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
+using RChat.Domain.Users;
 
 namespace RChat.Application.Chats.CheckAccess;
 
 public class CheckChatAccessBeforeJoinCommandHandler(
     IMemberRepository memberRepository,
     IChatRepository chatRepository,
-    IUserContext userContext
+    IAuthContext authContext
 ) : ICommandHandler<CheckChatAccessBeforeJoinCommand>
 {
     public async Task Handle(CheckChatAccessBeforeJoinCommand request, CancellationToken cancellationToken)
@@ -23,20 +24,20 @@ public class CheckChatAccessBeforeJoinCommandHandler(
             throw new EntityNotFoundException(nameof(Chat), request.ChatId);
 
         if(chat.DeletedAt is not null)
-            throw new ValidationException("Chat is deleted");
+            throw new ChatDeletedException();
         
-        bool isClosedChat = chat.Type == ChatType.Private || chat.GroupChat?.IsPrivate == true;
-        
-        if (isClosedChat)
+        if (chat.IsClosed)
         {
+            User authUser = await authContext.GetUserAsync(); 
+            
             Member? member = await memberRepository.GetAsync(new GetMemberParameters
             {
                 ChatId = request.ChatId,
-                UserId = userContext.UserId
+                UserId = authUser.Id
             });
 
             if (member is null)
-                throw new UserAccessDeniedException(userContext.UserId, "chat", request.ChatId);
+                throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
         }
     }
 }

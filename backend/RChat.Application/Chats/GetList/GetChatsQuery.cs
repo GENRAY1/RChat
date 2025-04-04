@@ -7,6 +7,7 @@ namespace RChat.Application.Chats.GetList;
 
 public class GetChatsQuery : IQuery<List<ChatDto>>
 {
+    public ChatType? Type { get; init; }
     public SortingDto<ChatSortingColumn>? Sorting { get; init; }
-    public PaginationDto? Pagination { get; init; }
+    public required PaginationDto Pagination { get; init; }
 }

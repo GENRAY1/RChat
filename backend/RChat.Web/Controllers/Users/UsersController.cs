@@ -1,74 +1,60 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Abstractions.Services.Authentication;
-using RChat.Application.Chats.GetListForUser;
+using RChat.Application.Chats.GetCurrentUserChats;
 using RChat.Application.Users.CommonDtos;
+using RChat.Application.Users.Create;
 using RChat.Application.Users.GetById;
 using RChat.Application.Users.GetList;
 using RChat.Application.Users.Update;
 using RChat.Domain.Common;
-using RChat.Web.Controllers.Users.GetById;
+using RChat.Web.Controllers.Users.Create;
+using RChat.Web.Controllers.Users.GetCurrentUserChats;
 using RChat.Web.Controllers.Users.GetList;
-using RChat.Web.Controllers.Users.GetMe;
-using RChat.Web.Controllers.Users.GetMeChats;
 using RChat.Web.Controllers.Users.Update;
 
 namespace RChat.Web.Controllers.Users;
 
 [Route("api/[controller]/")]
 [ApiController]
-public class UsersController(
-    ISender sender,
-    IUserContext userContext) 
+public class UsersController(ISender sender) 
     : ControllerBase
 {
     [Authorize]
-    [HttpGet("me")]
-    public async Task<ActionResult<GetUserMeResponse>> GetMe(
-        CancellationToken cancellationToken)
-    {
-        int userId = userContext.UserId;
-
-        UserDto user = await sender.Send(new GetUserByIdQuery
-            {
-                Id = userId
-            }, cancellationToken);
-        
-        return Ok(new GetUserMeResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Role = user.Role,
-            CreatedAt = user.CreatedAt,
-            DateOfBirth = user.DateOfBirth,
-            Description = user.Description,
-            Login = user.Login
-        });
-    }
-    
-    [Authorize]
     [HttpGet("me/chats")]
-    public async Task<ActionResult<GetUserMeResponse>> GetMeChats(
+    public async Task<ActionResult<GetCurrentUserChatsResponse>> GetCurrentUserChats(
         CancellationToken cancellationToken)
     {
+        var chats =
+            await sender.Send(new GetCurrentUserChatsQuery(), cancellationToken);
         
-        int userId = userContext.UserId;
-
-        var chats = await sender.Send(new GetChatsForUserQuery
-        {
-            UserId = userId
-        }, cancellationToken);
-        
-        return Ok(new GetMeChatsResponse
+        return Ok(new GetCurrentUserChatsResponse
         {
             Chats = chats
         });
     }
+    
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> Create(
+        [FromBody] CreateUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        UserDto user = await sender.Send(new CreateUserCommand {
+            Firstname = request.Firstname,
+            Lastname = request.Lastname,
+            Username = request.Username,
+            Description  = request.Description,
+            DateOfBirth = request.DateOfBirth
+        }, cancellationToken);
+        
+        return Ok(user);
+    }
+
 
     [Authorize]
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<GetUserMeResponse>> GetById(
+    public async Task<ActionResult<UserDto>> GetById(
         [FromRoute] int id, 
         CancellationToken cancellationToken)
     {
@@ -78,19 +64,12 @@ public class UsersController(
                 Id = id
             }, cancellationToken);
         
-        return Ok(new GetUserByIdResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Role = user.Role,
-            DateOfBirth = user.DateOfBirth,
-            Description = user.Description,
-        });
+        return Ok(user);
     }
     
     [Authorize]
     [HttpGet]
-    public async Task<ActionResult<GetUserMeResponse>> GetList(
+    public async Task<ActionResult<GetUsersResponse>> GetList(
         [FromQuery] GetUsersRequest request,
         CancellationToken cancellationToken)
     {
@@ -123,7 +102,9 @@ public class UsersController(
             Id = id,
             Description = request.Description,
             DateOfBirth = request.DateOfBirth,
-            Username = request.Username
+            Username = request.Username,
+            Firstname = request.Firstname,
+            Lastname = request.Lastname
         }, cancellationToken);
         
         return Ok();

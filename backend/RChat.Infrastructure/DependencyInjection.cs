@@ -6,10 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Domain.Accounts.Repository;
 using RChat.Domain.Chats.Repository;
-using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
-using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
 using RChat.Domain.Users.Repository;
 using RChat.Infrastructure.DataAccess.Connections;
@@ -47,7 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IMemberRepository, MemberRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
-        
+        services.AddScoped<IAccountRepository, AccountRepository>();
     }
 
     private static void AddSwaggerService(this IServiceCollection services)
@@ -93,7 +92,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IPasswordEncryptorService, PasswordEncryptorService>();
         
-        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<IAuthContext, AuthContext>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

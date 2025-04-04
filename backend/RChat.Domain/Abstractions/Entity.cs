@@ -2,5 +2,5 @@ namespace RChat.Domain.Abstractions;
 
 public abstract class Entity
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
 }

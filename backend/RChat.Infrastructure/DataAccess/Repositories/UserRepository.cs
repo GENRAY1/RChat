@@ -12,63 +12,47 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
 {
     public async Task<User?> GetAsync(GetUserParameters parameters)
     {
-        StringBuilder sql = new ();
-        
         const string defaultSql =
             $"""
             SELECT 
                 u.id AS {nameof(User.Id)},
-                u.login AS {nameof(User.Login)},
                 u.username AS {nameof(User.Username)},
-                u.password AS {nameof(User.Password)},
                 u.description AS {nameof(User.Description)},
                 u.date_of_birth AS {nameof(User.DateOfBirth)},
                 u.created_at AS {nameof(User.CreatedAt)},
                 u.updated_at AS {nameof(User.UpdatedAt)},
-                u.role_id AS {nameof(User.RoleId)},
-                r.id AS {nameof(User.UserRole.Id)},
-                r.name AS {nameof(User.UserRole.Name)},
-                r.description AS {nameof(User.UserRole.Description)}
+                u.account_id AS {nameof(User.AccountId)},
+                u.username AS {nameof(User.Username)},
+                u.firstname AS {nameof(User.Firstname)},
+                u.lastname AS {nameof(User.Lastname)}
             FROM public.user AS u
-            JOIN public.user_role AS r ON u.role_id = r.id
-            WHERE TRUE
             """;
         
-        sql.Append(defaultSql);
-
-        var param = new DynamicParameters();
-
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+        
         if (parameters.Id is not null)
         {
-            sql.Append($" AND u.id = @Id");
-            param.Add("@Id", parameters.Id);
+            queryBuilder.AddCondition("u.id = @Id");
+            queryBuilder.AddParameter("@Id", parameters.Id);
         }
 
         if (parameters.Username is not null)
         {
-            sql.Append($" AND u.username = @Username");
-            param.Add("@Username", parameters.Username);
+            queryBuilder.AddCondition("u.username = @Username");
+            queryBuilder.AddParameter("@Username", parameters.Username);
         }
-
-        if (parameters.Login is not null)
+        
+        if (parameters.AccountId is not null)
         {
-            sql.Append($" AND u.login = @Login");
-            param.Add("@Login", parameters.Login);
+            queryBuilder.AddCondition("u.account_id = @AccountId");
+            queryBuilder.AddParameter("@AccountId", parameters.AccountId);
         }
         
         using var connection = await connectionFactory.CreateAsync();
+
+        string sql = queryBuilder.BuildQuery();
         
-        User? user = (await connection.QueryAsync<User, UserRole, User>(
-            sql.ToString(),
-            (user, role) =>
-            {
-                user.UserRole = role;
-                
-                return user;
-            },
-            param,
-            splitOn: $"{nameof(User.Id)}, {nameof(User.UserRole.Id)}"
-        )).FirstOrDefault();
+        User? user = await connection.QueryFirstOrDefaultAsync<User>(sql, queryBuilder.GetParameters());
         
         return user;
     }
@@ -79,17 +63,14 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
             $"""
              SELECT 
                  u.id AS {nameof(User.Id)},
-                 u.login AS {nameof(User.Login)},
                  u.username AS {nameof(User.Username)},
-                 u.password AS {nameof(User.Password)},
                  u.description AS {nameof(User.Description)},
                  u.date_of_birth AS {nameof(User.DateOfBirth)},
                  u.created_at AS {nameof(User.CreatedAt)},
                  u.updated_at AS {nameof(User.UpdatedAt)},
-                 u.role_id AS {nameof(User.RoleId)},
-                 r.id AS {nameof(User.UserRole.Id)},
-                 r.name AS {nameof(User.UserRole.Name)},
-                 r.description AS {nameof(User.UserRole.Description)}
+                 u.account_id AS {nameof(User.AccountId)},
+                 u.firstname AS {nameof(User.Firstname)},
+                 u.lastname AS {nameof(User.Lastname)}
              FROM public.user AS u
              """;
         
@@ -106,27 +87,17 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
             {
                 { UserSortingColumn.CreatedAt, "u.created_at" },
                 { UserSortingColumn.DateOfBirth, "u.date_of_birth" },
-                { UserSortingColumn.Username, "u.username" },
-                { UserSortingColumn.RoleName, "r.name" },
+                { UserSortingColumn.Username, "u.username" }
             };
             
             queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
         }
         
-        queryBuilder.AddJoin("JOIN public.user_role AS r ON u.role_id = r.id");
-        
         using var connection = await connectionFactory.CreateAsync();
-        
-        IEnumerable<User> users = await connection.QueryAsync<User, UserRole, User>(
+
+        IEnumerable<User> users = await connection.QueryAsync<User>(
             queryBuilder.BuildQuery(),
-            (user, role) =>
-            {
-                user.UserRole = role;
-                return user;
-            }, 
-            param: queryBuilder.GetParameters(),
-            splitOn: $"{nameof(User.Id)}, {nameof(User.UserRole.Id)}"
-        );
+            param: queryBuilder.GetParameters());
         
         return users.ToList();
     }
@@ -136,15 +107,15 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
         const string sql =
             $"""
             INSERT INTO public.user
-            (login, username, password, description, date_of_birth, created_at, role_id)
+            (account_id, username, firstname, lastname, description, date_of_birth, created_at)
             VALUES (
-               @{nameof(User.Login)},
+               @{nameof(User.AccountId)},
                @{nameof(User.Username)}, 
-               @{nameof(User.Password)},
+               @{nameof(User.Firstname)},
+               @{nameof(User.Lastname)},
                @{nameof(User.Description)},
                @{nameof(User.DateOfBirth)},
-               @{nameof(User.CreatedAt)},
-               @{nameof(User.RoleId)}
+               @{nameof(User.CreatedAt)}
             )
             RETURNING id;
             """;
@@ -159,14 +130,14 @@ public class UserRepository(IDbConnectionFactory connectionFactory)
         const string sql =
             $"""
              UPDATE public.user
-             SET login = @{nameof(User.Login)},
+             SET account_id = @{nameof(User.AccountId)},
              username = @{nameof(User.Username)},
-             password = @{nameof(User.Password)},
+             firstname = @{nameof(User.Firstname)},
+             lastname = @{nameof(User.Lastname)},
              description = @{nameof(User.Description)},
              date_of_birth = @{nameof(User.DateOfBirth)},
              created_at = @{nameof(User.CreatedAt)},
-             updated_at = @{nameof(User.UpdatedAt)},
-             role_id = @{nameof(User.RoleId)}
+             updated_at = @{nameof(User.UpdatedAt)}
              WHERE id = @{nameof(User.Id)};
              """;
         

@@ -1,6 +1,7 @@
 using System.Data;
 using FluentMigrator;
 using FluentMigrator.Postgres;
+using RChat.Domain.Accounts;
 using RChat.Domain.Users;
 
 namespace RChat.Infrastructure.Data.Migrations;
@@ -47,11 +48,11 @@ public class AddUser : Migration{
         
         Create.Table("user_role")
             .WithColumn("id").AsInt32().PrimaryKey()
-            .WithColumn("name").AsString(UserRole.MaxNameLength).NotNullable()
-            .WithColumn("description").AsString(UserRole.MaxDescriptionLength).Nullable();
+            .WithColumn("name").AsString(AccountRole.MaxNameLength).NotNullable()
+            .WithColumn("description").AsString(AccountRole.MaxDescriptionLength).Nullable();
         
-        Insert.IntoTable("user_role").Row(new { id = UserRole.User.Id, name = UserRole.User.Name, description = UserRole.User.Description });
-        Insert.IntoTable("user_role").Row(new { id = UserRole.Admin.Id, name = UserRole.Admin.Name, description = UserRole.Admin.Description });
+        Insert.IntoTable("user_role").Row(new { id = AccountRole.User.Id, name = AccountRole.User.Name, description = AccountRole.User.Description });
+        Insert.IntoTable("user_role").Row(new { id = AccountRole.Admin.Id, name = AccountRole.Admin.Name, description = AccountRole.Admin.Description });
 
         Create.ForeignKey()
             .FromTable("user").ForeignColumn("role_id")

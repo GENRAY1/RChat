@@ -1,17 +1,15 @@
 using RChat.Application.Exceptions;
-using RChat.Application.Users.Extensions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
 using RChat.Domain.Users;
-using RChat.Domain.Users.Repository;
 
 namespace RChat.Application.Chats.Create;
 
 public class CreateGroupChatAsync(
+    User creator,
     IChatRepository chatRepository,
-    IUserRepository userRepository,
     IMemberRepository memberRepository) 
     : IChatCreationStrategy
 {
@@ -21,8 +19,6 @@ public class CreateGroupChatAsync(
             throw new ValidationException("Group chat must have group details");
         
         DateTime now = DateTime.UtcNow;
-        
-        User creator = await userRepository.GetByIdOrThrowAsync(request.CreatorId);
 
         Chat chat = new Chat
         {

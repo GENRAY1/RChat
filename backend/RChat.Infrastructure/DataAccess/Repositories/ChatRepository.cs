@@ -1,8 +1,6 @@
-using System.Text;
 using Dapper;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
-using RChat.Domain.Users;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -84,10 +82,23 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
             queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
         }
         
+        bool needIncludeMembers =
+            parameters.UserIds is not null 
+            || parameters.OnlyAccessibleByUserId is not null;
+        
+        if (needIncludeMembers) 
+            queryBuilder.AddJoin("JOIN public.member AS m ON c.id = m.chat_id");
+        
         if (parameters.UserIds is not null)
         {
-            queryBuilder.AddJoin("JOIN public.member AS m ON c.id = m.chat_id AND m.user_id = ANY(@UserIds)");
+            queryBuilder.AddCondition("m.user_id = ANY(@UserIds)");
             queryBuilder.AddParameter("@UserIds", parameters.UserIds);
+        }
+            
+        if(parameters.OnlyAccessibleByUserId is not null)
+        {
+            queryBuilder.AddCondition("(cg.is_private = FALSE OR m.user_id = @UserId)");
+            queryBuilder.AddParameter("@UserId", parameters.OnlyAccessibleByUserId);
         }
 
         if (parameters.OnlyActive is true)
@@ -99,6 +110,12 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
         {
             queryBuilder.AddCondition("c.id = ANY(@ChatIds)");
             queryBuilder.AddParameter("@ChatIds", parameters.ChatIds);
+        }
+
+        if (parameters.Type is not null)
+        {
+            queryBuilder.AddCondition("c.type = @Type");
+            queryBuilder.AddParameter("@Type", parameters.Type);
         }
         
         using var connection = await connectionFactory.CreateAsync();

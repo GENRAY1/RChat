@@ -56,14 +56,14 @@ public class MemberRepository(IDbConnectionFactory connectionFactory) : IMemberR
                  m.chat_id AS {nameof(Member.ChatId)},
                  m.joined_at AS {nameof(Member.JoinedAt)},
                  u.id AS {nameof(Member.User.Id)},
+                 u.account_id AS {nameof(Member.User.AccountId)},
                  u.username AS {nameof(Member.User.Username)},
-                 u.login AS {nameof(Member.User.Login)},
-                 u.password AS {nameof(Member.User.Password)},
+                 u.firstname AS {nameof(Member.User.Firstname)},
+                 u.lastname AS {nameof(Member.User.Lastname)},
                  u.description AS {nameof(Member.User.Description)},
                  u.date_of_birth AS {nameof(Member.User.DateOfBirth)},
                  u.created_at AS {nameof(Member.User.CreatedAt)},
-                 u.updated_at AS {nameof(Member.User.UpdatedAt)},
-                 u.role_id AS {nameof(Member.User.RoleId)}
+                 u.updated_at AS {nameof(Member.User.UpdatedAt)}
              FROM public.member AS m
              JOIN public.user AS u ON m.user_id = u.id
              """;
