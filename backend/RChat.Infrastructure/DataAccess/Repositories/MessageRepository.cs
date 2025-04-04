@@ -102,6 +102,50 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
         return messages.ToList();
     }
 
+    public async Task<List<Message>> GetLatestMessagesByChatIdsAsync(int[] chatIds)
+    {
+        const string sql =
+            $"""
+             SELECT DISTINCT ON (m.chat_id)
+                 m.id AS {nameof(Member.Id)},
+                 m.text AS {nameof(Message.Text)},
+                 m.chat_id AS {nameof(Message.ChatId)},
+                 m.sender_id AS {nameof(Message.SenderId)},
+                 m.reply_to_message_id AS {nameof(Message.ReplyToMessageId)},
+                 m.created_at AS {nameof(Message.CreatedAt)},
+                 m.updated_at AS {nameof(Message.UpdatedAt)},
+                 m.deleted_at AS {nameof(Message.DeletedAt)},
+                 u.id AS {nameof(Message.Sender.Id)},
+                 u.account_id AS {nameof(Message.Sender.AccountId)},
+                 u.username AS {nameof(Message.Sender.Username)},
+                 u.firstname AS {nameof(Message.Sender.Firstname)},
+                 u.lastname AS {nameof(Message.Sender.Lastname)},
+                 u.description AS {nameof(Message.Sender.Description)},
+                 u.date_of_birth AS {nameof(Message.Sender.DateOfBirth)},
+                 u.created_at AS {nameof(Message.Sender.CreatedAt)},
+                 u.updated_at AS {nameof(Message.Sender.UpdatedAt)}
+             FROM public.message AS m
+             JOIN public.user AS u ON u.id = m.sender_id
+             WHERE m.chat_id = ANY(@ChatIds) AND m.deleted_at IS NULL
+             ORDER BY m.chat_id, m.created_at DESC;
+             """;
+        
+        using var connection = await connectionFactory.CreateAsync();
+        
+        var messages = await connection.QueryAsync<Message, User, Message>(
+            sql,
+            (message, user) =>
+            {
+                message.Sender = user;
+                
+                return message;
+            },
+            new { ChatIds = chatIds},
+            splitOn:$"{nameof(Message.Id)}, {nameof(Message.Sender.Id)}");
+
+        return messages.ToList();
+    }
+
     public async Task<int> CreateAsync(Message message)
     {
         const string defaultSql =
