@@ -2,10 +2,13 @@ using RChat.Application.Abstractions.Messaging;
 using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Chats.Dtos;
 using RChat.Application.Chats.Extensions;
+using RChat.Application.Messages.Extensions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
+using RChat.Domain.Messages;
+using RChat.Domain.Messages.Repository;
 using RChat.Domain.Users;
 
 namespace RChat.Application.Chats.GetCurrentUserChats;
@@ -13,6 +16,7 @@ namespace RChat.Application.Chats.GetCurrentUserChats;
 public class GetCurrentUserChatsQueryHandler(
     IMemberRepository memberRepository,
     IChatRepository chatRepository,
+    IMessageRepository messageRepository,
     IAuthContext authContext
 ) : IQueryHandler<GetCurrentUserChatsQuery, List<CurrentUserChatDto>>
 {
@@ -27,12 +31,45 @@ public class GetCurrentUserChatsQueryHandler(
                 OnlyActive = true
             });
         
+        if(chats.Count == 0) return [];
+        
+        int[] chatIds = chats
+            .Select(c => c.Id)
+            .ToArray();
+        
+        List<Message> latestMessages = 
+            await messageRepository.GetLatestMessagesByChatIdsAsync(chatIds);
+        
+        Dictionary<int, User> privateChatRecipientDict = 
+            await GetPrivateChatRecipientDictionary(chats, authUser.Id);
+        
+        return chats.Join(latestMessages, 
+            chat => chat.Id, 
+            latestMessage => latestMessage.ChatId, 
+            (chat, latestMessage) => new CurrentUserChatDto
+            {
+                Id = chat.Id,
+                DisplayName = chat.GroupChat?.Name 
+                              ?? privateChatRecipientDict.GetValueOrDefault(chat.Id)?.FullName 
+                              ?? string.Empty,
+                Type = chat.Type,
+                CreatorId = chat.CreatorId,
+                CreatedAt = chat.CreatedAt,
+                GroupChat = chat.GroupChat?.MappingToDto(),
+                LatestMessage = latestMessage.MappingToDto(),
+            }).ToList();
+    }
+
+    private async Task<Dictionary<int, User>> GetPrivateChatRecipientDictionary(
+        List<Chat> chats, 
+        int authUserId)
+    {
+        Dictionary<int, User> result = [];
+        
         int[] privateChatIds = chats
             .Where(chat => chat.Type == ChatType.Private)
             .Select(c => c.Id)
             .ToArray();
-
-        Dictionary<int, User> privateChatRecipientDict = [];
 
         if (privateChatIds.Length > 0)
         {
@@ -44,22 +81,13 @@ public class GetCurrentUserChatsQueryHandler(
             
             foreach (var member in privateChatMembers)
             {
-                if (member.UserId != authUser.Id)
+                if (member.UserId != authUserId)
                 {
-                    privateChatRecipientDict.Add(member.ChatId, member.User);
+                    result.Add(member.ChatId, member.User);
                 }
             }
         }
-        return chats.Select(chat => new CurrentUserChatDto
-        {
-            Id = chat.Id,
-            DisplayName = chat.GroupChat?.Name 
-                ?? privateChatRecipientDict.GetValueOrDefault(chat.Id)?.FullName 
-                ?? string.Empty,
-            Type = chat.Type,
-            CreatorId = chat.CreatorId,
-            CreatedAt = chat.CreatedAt,
-            GroupChat = chat.GroupChat?.MappingToDto()
-        }).ToList();
+        
+        return result;
     }
 }
