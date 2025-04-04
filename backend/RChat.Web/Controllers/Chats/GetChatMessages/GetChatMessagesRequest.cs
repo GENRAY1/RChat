@@ -2,7 +2,7 @@ namespace RChat.Web.Controllers.Chats.GetChatMessages;
 
 public class GetChatMessagesRequest
 {
-    public int Skip { get; init; }
+    public required int Skip { get; init; }
     
-    public int Take { get; init; }
+    public required int Take { get; init; }
 }

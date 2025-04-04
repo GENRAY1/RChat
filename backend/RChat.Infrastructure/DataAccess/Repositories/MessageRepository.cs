@@ -42,7 +42,8 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
                  m.sender_id AS {nameof(Message.SenderId)},
                  m.reply_to_message_id AS {nameof(Message.ReplyToMessageId)},
                  m.created_at AS {nameof(Message.CreatedAt)},
-                 m.updated_at AS {nameof(Message.UpdatedAt)}
+                 m.updated_at AS {nameof(Message.UpdatedAt)},
+                 m.deleted_at AS {nameof(Message.DeletedAt)}
              FROM public.message AS m
              """;
 
@@ -107,6 +108,7 @@ public class MessageRepository(IDbConnectionFactory connectionFactory)
             $"""
              UPDATE public.message
              SET text = @{nameof(Message.Text)}, 
+             deleted_at = @{nameof(Message.DeletedAt)},
              updated_at = @{nameof(Message.UpdatedAt)},
              reply_to_message_id = @{nameof(Message.ReplyToMessageId)}
              WHERE id = @{nameof(Message.Id)};

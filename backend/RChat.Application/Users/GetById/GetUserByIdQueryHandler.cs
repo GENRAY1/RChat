@@ -1,4 +1,5 @@
 using RChat.Application.Abstractions.Messaging;
+using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
 using RChat.Application.Users.CommonDtos;
 using RChat.Application.Users.Extensions;
@@ -7,7 +8,7 @@ using RChat.Domain.Users.Repository;
 
 namespace RChat.Application.Users.GetById;
 
-public class GetUserByIdQueryHandler(IUserRepository userRepository)
+public class GetUserByIdQueryHandler(IUserRepository userRepository) 
     : IQueryHandler<GetUserByIdQuery, UserDto>
 {
     public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)

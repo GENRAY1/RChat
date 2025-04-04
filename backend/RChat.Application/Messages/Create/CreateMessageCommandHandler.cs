@@ -2,7 +2,6 @@ using RChat.Application.Abstractions.Messaging;
 using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
 using RChat.Application.Messages.Dtos;
-using RChat.Application.Users.Extensions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
@@ -10,8 +9,6 @@ using RChat.Domain.Members.Repository;
 using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
 using RChat.Domain.Users;
-using RChat.Domain.Users.Repository;
-using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 namespace RChat.Application.Messages.Create;
 
@@ -19,19 +16,21 @@ public class CreateMessageCommandHandler(
     IMessageRepository messageRepository,
     IChatRepository chatRepository,
     IMemberRepository memberRepository,
-    IUserContext userContext
+    IAuthContext authContext
 ) : ICommandHandler<CreateMessageCommand, MessageDto>
 {
     public async Task<MessageDto> Handle(CreateMessageCommand request, CancellationToken cancellationToken)
     {
+        User authUser = await authContext.GetUserAsync();
+        
         Member? member = await memberRepository.GetAsync(new GetMemberParameters
         {
             ChatId = request.ChatId,
-            UserId = userContext.UserId
+            UserId = authUser.Id
         });
         
         if (member is null)
-            throw new UserAccessDeniedException(userContext.UserId, "chat", request.ChatId);
+            throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
         
         Chat? chat = 
             await chatRepository.GetByIdAsync(request.ChatId);
@@ -46,7 +45,7 @@ public class CreateMessageCommandHandler(
         {
             ChatId = request.ChatId,
             Text = request.Text,
-            SenderId = userContext.UserId,
+            SenderId = authUser.Id,
             ReplyToMessageId = request.ReplyToMessageId,
             CreatedAt = DateTime.UtcNow
         };

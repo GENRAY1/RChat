@@ -1,4 +1,4 @@
 namespace RChat.Application.Exceptions;
 
-public class ConflictDataException(string fieldName) 
-    : ApiException(409, $"{fieldName} already exists");
+public class ConflictDataException(string name) 
+    : ApiException(409, $"{name} already exists");

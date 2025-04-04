@@ -7,20 +7,24 @@ public class User : Entity
     public const int MaxUsernameLength = 32;
     public const int MaxDescriptionLength = 80;
     
-    public required string Login { get; init; }
+    public const int MaxFirstnameLength = 64;
+    public const int MaxLastnameLength = 64;
     
-    public required string Password { get; set; }
+    public required int AccountId { get; init; }
     
-    public string Username { get; set; } = null!;
+    public required string Firstname { get; set; }
+    
+    public string? Lastname { get; set; } 
+    
+    public string? Username { get; set; }
 
     public string? Description { get; set; }
     
     public DateTime? DateOfBirth { get; set; }
 
-    public DateTime CreatedAt { get; } = DateTime.UtcNow;
+    public required DateTime CreatedAt { get; set; }
     
     public DateTime? UpdatedAt { get; set; } 
     
-    public required int RoleId { get; set; }
-    public UserRole UserRole { get; set; } = null!;
+    public string FullName => $"{Firstname} {Lastname}".Trim();
 } 

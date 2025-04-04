@@ -3,17 +3,20 @@ using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
 using RChat.Application.Messages.Dtos;
 using RChat.Application.Messages.Extensions;
+using RChat.Domain.Accounts;
+using RChat.Domain.Accounts.Repository;
+using RChat.Domain.Chats;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
 using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
+using RChat.Domain.Users;
 
 namespace RChat.Application.Messages.Update;
 
 public class UpdateMessageCommandHandler(
     IMessageRepository messageRepository,
-    IMemberRepository memberRepository,
-    IUserContext userContext
+    IAuthContext authContext
     ) : ICommandHandler<UpdateMessageCommand, MessageDto>
 {
     public async Task<MessageDto> Handle(UpdateMessageCommand request, CancellationToken cancellationToken)
@@ -23,15 +26,14 @@ public class UpdateMessageCommandHandler(
         
         if (message is null)
             throw new EntityNotFoundException(nameof(Message), request.MessageId);
-        
-        Member? member = await memberRepository.GetAsync(new GetMemberParameters
+
+        if (authContext.Role == AccountRole.User.Name)
         {
-            ChatId = message.ChatId,
-            UserId = userContext.UserId
-        });
-        
-        if (member is null)
-            throw new UserAccessDeniedException(userContext.UserId, "chat", message.ChatId);
+            User authUser = await authContext.GetUserAsync();
+            
+            if(message.SenderId != authUser.Id)
+                throw new UserAccessDeniedException(authUser.Id, nameof(Message), message.Id);
+        }
         
         message.Text = request.Text;
         message.UpdatedAt = DateTime.UtcNow;

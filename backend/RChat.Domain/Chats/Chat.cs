@@ -9,4 +9,6 @@ public class Chat : Entity
     public required DateTime CreatedAt { get; init; }
     public DateTime? DeletedAt { get; set; } 
     public ChatGroup? GroupChat { get; set; }
+    
+    public bool IsClosed => Type == ChatType.Private || GroupChat?.IsPrivate == true;
 }

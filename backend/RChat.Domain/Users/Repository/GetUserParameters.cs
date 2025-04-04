@@ -4,7 +4,6 @@ public class GetUserParameters
 {
     public int? Id { get; init; }
     
+    public int? AccountId { get; init; }
     public string? Username { get; init; }
-    
-    public string? Login { get; init; }
 }

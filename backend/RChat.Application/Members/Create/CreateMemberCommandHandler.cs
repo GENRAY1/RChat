@@ -1,42 +1,34 @@
 using RChat.Application.Abstractions.Messaging;
+using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
-using RChat.Application.Users.Extensions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
 using RChat.Domain.Users;
-using RChat.Domain.Users.Repository;
 
 namespace RChat.Application.Members.Create;
 
 public class CreateMemberCommandHandler(
     IMemberRepository memberRepository,
     IChatRepository chatRepository,
-    IUserRepository userRepository
+    IAuthContext authContext
 ) : ICommandHandler<CreateMemberCommand, int>
 {
     public async Task<int> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
     {
-        User? user = await userRepository.GetAsync(
-            new GetUserParameters
-            {
-                Id = request.UserId
-            });
+        User authUser = await authContext.GetUserAsync();
         
         var existingMember = await memberRepository.GetAsync(
             new GetMemberParameters
             {
                 ChatId = request.ChatId,
-                UserId = request.UserId
+                UserId = authUser.Id
             });
 
         if (existingMember is not null)
-            throw new ValidationException("Member already exists");
+            throw new ConflictDataException(nameof(Member));
         
-        if(user is null)
-            throw new EntityNotFoundException(nameof(User), request.UserId);
-
         Chat? chat = await chatRepository.GetByIdAsync(request.ChatId);
 
         if (chat is null)
@@ -45,10 +37,13 @@ public class CreateMemberCommandHandler(
         if (chat.Type == ChatType.Private)
             throw new ValidationException("Private chat cannot have more than two members");
         
+        if(chat.GroupChat?.IsPrivate == true)
+            throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
+        
         Member member = new Member
         {
             ChatId = request.ChatId,
-            UserId = request.UserId,
+            UserId = authUser.Id,
             JoinedAt = DateTime.UtcNow
         };
         

@@ -3,9 +3,8 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using RChat.Application.Abstractions.Services;
 using RChat.Application.Abstractions.Services.Authentication;
-using RChat.Application.Users.CommonDtos;
+using RChat.Application.Accounts.Dtos;
 
 namespace RChat.Infrastructure.Services.Authentication;
 
@@ -14,12 +13,12 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     private readonly SymmetricSecurityKey _key = 
         new (Encoding.UTF8.GetBytes(options.Value.Key));
     
-    public string GenerateAccessToken(UserDto user)
+    public string GenerateAccessToken(int accountId, string roleName)
     {
         List<Claim> claims = new List<Claim>
         {
-            new (ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new (ClaimTypes.Role, user.Role.Name)
+            new (ClaimTypes.NameIdentifier, accountId.ToString()),
+            new (ClaimTypes.Role, roleName)
         };
         
         var token = new JwtSecurityToken(
