@@ -1,5 +1,4 @@
 import {FC, FormEvent, useContext, useState} from "react"
-
 import {
     Container,
     Box,
@@ -10,29 +9,30 @@ import {
     CssBaseline,
 } from '@mui/material';
 import {Link, useNavigate} from "react-router-dom";
-import {AuthService} from "../api/auth-service/AuthService.ts";
-import AuthContext, {AuthData} from "../auth/auth-context.ts";
-import {LoginResponse} from "../api/auth-service/auth-contracts.ts";
-const LoginPage: FC = () => {
+import AuthContext, {AuthContextValue} from "../features/auth/AuthContext.ts";
+import {LoginResponse} from "../api/account-service/account-contracts.ts";
+import {AccountService} from "../api/account-service/AccountService.ts";
+import {AxiosResponse} from "axios";
+import {toast} from "react-toastify";
+import {ApiErrorData, getApiErrorOrDefault} from "../api/api-error-data.ts";
 
+const LoginPage: FC = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const authContext : AuthData = useContext(AuthContext)
+    const authContext : AuthContextValue = useContext(AuthContext)
     const navigate = useNavigate();
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         try{
-            const loginResponse : LoginResponse
-                =  await AuthService.login({login, password});
+            const loginResponse : AxiosResponse<LoginResponse>
+                =  await AccountService.login({login, password});
 
-            if(authContext){
-                authContext.login(loginResponse.accessToken)
-            }
-
+            authContext.login(loginResponse.data.accessToken)
             navigate("/");
-        }catch(error){
-            console.log(error);
+        }catch(err){
+            const errorData:ApiErrorData = getApiErrorOrDefault(err)
+            toast.error(errorData.Message)
         }
     };
 
@@ -47,7 +47,7 @@ const LoginPage: FC = () => {
                     alignItems: 'center',
                 }}>
                 <Typography component="h1" variant="h5">
-                    Вход
+                    Login
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
                     <TextField
@@ -55,7 +55,7 @@ const LoginPage: FC = () => {
                         required
                         fullWidth
                         id="login"
-                        label="Логин"
+                        label="Login"
                         name="login"
                         autoComplete="username"
                         autoFocus
@@ -67,7 +67,7 @@ const LoginPage: FC = () => {
                         required
                         fullWidth
                         name="password"
-                        label="Пароль"
+                        label="Password"
                         type="password"
                         id="password"
                         autoComplete="current-password"
@@ -79,13 +79,13 @@ const LoginPage: FC = () => {
                         fullWidth
                         variant="contained"
                         sx={{mt: 3, mb: 2}}>
-                        Войти
+                        Login
                     </Button>
                     <Grid2 container justifyContent="flex-end">
                         <Typography variant="body2">
-                            Нет аккаунта?{" "}
+                            You don't have an account?{" "}
                             <Link to="/register" style={{textDecoration: 'none'}}>
-                                Зарегистрируйтесь
+                                Sign up
                             </Link>
                         </Typography>
                     </Grid2>

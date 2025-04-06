@@ -19,7 +19,7 @@ const ChatPanel = () => {
                         key={chat.id}
                         chatType={chat.type}
                         chatName={chat.displayName}
-                        lastMessage={chat.lastMessage}
+                        lastMessage={chat.latestMessage}
                         isLastMessageOutgoing={false}
                     />)}
                 </div>

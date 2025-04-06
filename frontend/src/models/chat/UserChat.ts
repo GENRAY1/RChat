@@ -9,5 +9,5 @@ export interface UserChat{
     creatorId: number;
     createdAt: Date;
     groupChat: ChatGroup;
-    lastMessage: Message
+    latestMessage: Message
 }
