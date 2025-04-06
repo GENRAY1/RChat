@@ -13,7 +13,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1001,
             text: "Привет, как дела?",
             chatId: 1,
@@ -36,7 +36,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Обсуждение проектов",
             isPrivate: false
         },
-        lastMessage: {
+        latestMessage: {
             id: 1002,
             text: "Завтра встреча в 10:00",
             chatId: 2,
@@ -59,7 +59,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Чат для общения",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1003,
             text: "Кто сегодня свободен?",
             chatId: 3,
@@ -81,7 +81,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1004,
             text: "Спасибо за помощь!",
             chatId: 4,
@@ -104,7 +104,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Чат участников",
             isPrivate: false
         },
-        lastMessage: {
+        latestMessage: {
             id: 1005,
             text: "Завтра тренировка в 8 утра",
             chatId: 5,
@@ -127,7 +127,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1006,
             text: "Где встретимся?",
             chatId: 6,
@@ -150,7 +150,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Планирование поездок",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1007,
             text: "Билеты куплены!",
             chatId: 7,
@@ -173,7 +173,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1008,
             text: "Документы готовы",
             chatId: 8,
@@ -197,7 +197,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Обсуждение фильмов",
             isPrivate: false
         },
-        lastMessage: {
+        latestMessage: {
             id: 1009,
             text: "Сегодня смотрим 'Начало'",
             chatId: 9,
@@ -219,7 +219,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1010,
             text: "Как твои дела?",
             chatId: 10,
@@ -242,7 +242,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Технические вопросы",
             isPrivate: false
         },
-        lastMessage: {
+        latestMessage: {
             id: 1011,
             text: "Сервер будет обновлен завтра",
             chatId: 11,
@@ -266,7 +266,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1012,
             text: "Договор подписан",
             chatId: 12,
@@ -289,7 +289,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Обсуждение книг",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1013,
             text: "Следующая книга - '1984'",
             chatId: 13,
@@ -312,7 +312,7 @@ export const USER_CHATS:UserChat[] = [
             description: "",
             isPrivate: true
         },
-        lastMessage: {
+        latestMessage: {
             id: 1014,
             text: "Фото получила, спасибо!",
             chatId: 14,
@@ -336,7 +336,7 @@ export const USER_CHATS:UserChat[] = [
             description: "Организация матчей",
             isPrivate: false
         },
-        lastMessage: {
+        latestMessage: {
             id: 1015,
             text: "Завтра игра в 19:00",
             chatId: 15,

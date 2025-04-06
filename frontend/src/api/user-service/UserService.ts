@@ -1,13 +1,14 @@
-import axios, {AxiosResponse} from "axios";
-import {AuthUser} from "../../models/user/AuthUser.ts";
+
+import {CreateUserRequest} from "./user-contracts.ts";
+import {User} from "../../models/user/User.ts";
+import {apiClient} from "../api-client.ts";
+import {AxiosResponse} from "axios";
 
 export class UserService {
 
-    private static url : string = 'http://localhost:5213/api/users';
+    private static path : string = 'users';
 
-    public static async GetMe() : Promise<AuthUser>{
-        const response: AxiosResponse<AuthUser> = await axios.get(`${this.url}/me`);
-
-        return response.data;
+    public static async Create(request: CreateUserRequest) : Promise<AxiosResponse<User>>{
+        return apiClient.post(`${this.path}`, request);
     }
 }

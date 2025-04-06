@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useNavigate, Link} from 'react-router-dom';
 import {
     Container,
     Box,
@@ -9,8 +9,9 @@ import {
     Grid2,
     CssBaseline,
 } from '@mui/material';
-import {AuthService} from "../api/auth-service/AuthService.ts";
-
+import {AccountService} from "../api/account-service/AccountService.ts";
+import {ApiErrorData, getApiErrorOrDefault} from "../api/api-error-data.ts";
+import {toast} from "react-toastify";
 const RegisterPage = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
@@ -20,21 +21,23 @@ const RegisterPage = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        if(password !== confirmPassword)
-            alert("Пароли не совпадают")
+        if (password !== confirmPassword)
+            return toast.error("Passwords don't match");
 
         try {
-            await AuthService.register({login, password})
+            await AccountService.register({login, password})
+
             navigate('/login');
         }
-        catch (error) {
-            console.log(error);
+        catch (err){
+            const errorData:ApiErrorData = getApiErrorOrDefault(err)
+            toast.error(errorData.Message)
         }
     };
 
     return (
         <Container component="main" maxWidth="xs">
-            <CssBaseline />
+            <CssBaseline/>
             <Box
                 sx={{
                     marginTop: 8,
@@ -44,15 +47,15 @@ const RegisterPage = () => {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Регистрация
+                    Sign up
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
                     <TextField
                         margin="normal"
                         required
                         fullWidth
                         id="login"
-                        label="Логин"
+                        label="Login"
                         name="login"
                         autoComplete="username"
                         autoFocus
@@ -64,7 +67,7 @@ const RegisterPage = () => {
                         required
                         fullWidth
                         name="password"
-                        label="Пароль"
+                        label="Password"
                         type="password"
                         id="password"
                         autoComplete="new-password"
@@ -76,7 +79,7 @@ const RegisterPage = () => {
                         required
                         fullWidth
                         name="confirmPassword"
-                        label="Подтвердите пароль"
+                        label="Confirm password"
                         type="password"
                         id="confirmPassword"
                         autoComplete="new-password"
@@ -87,17 +90,17 @@ const RegisterPage = () => {
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{mt: 3, mb: 2}}
                     >
-                        Зарегистрироваться
+                        Sign up
                     </Button>
                     <Grid2 container justifyContent="flex-end">
-                            <Typography variant="body2">
-                                Уже есть аккаунт?{' '}
-                                <Link to="/login" style={{ textDecoration: 'none' }}>
-                                    Войдите
-                                </Link>
-                            </Typography>
+                        <Typography variant="body2">
+                            Already have an account?{' '}
+                            <Link to="/login" style={{textDecoration: 'none'}}>
+                                Login now
+                            </Link>
+                        </Typography>
                     </Grid2>
                 </Box>
             </Box>
