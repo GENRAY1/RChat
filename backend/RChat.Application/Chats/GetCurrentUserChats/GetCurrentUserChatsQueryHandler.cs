@@ -43,21 +43,23 @@ public class GetCurrentUserChatsQueryHandler(
         Dictionary<int, User> privateChatRecipientDict = 
             await GetPrivateChatRecipientDictionary(chats, authUser.Id);
         
-        return chats.Join(latestMessages, 
-            chat => chat.Id, 
-            latestMessage => latestMessage.ChatId, 
-            (chat, latestMessage) => new CurrentUserChatDto
+        return chats.Select(chat =>
+        {
+            var latestMessage = latestMessages.FirstOrDefault(x => x.ChatId == chat.Id);
+            
+            return new CurrentUserChatDto
             {
                 Id = chat.Id,
-                DisplayName = chat.GroupChat?.Name 
-                              ?? privateChatRecipientDict.GetValueOrDefault(chat.Id)?.FullName 
+                DisplayName = chat.GroupChat?.Name
+                              ?? privateChatRecipientDict.GetValueOrDefault(chat.Id)?.FullName
                               ?? string.Empty,
                 Type = chat.Type,
                 CreatorId = chat.CreatorId,
                 CreatedAt = chat.CreatedAt,
                 GroupChat = chat.GroupChat?.MappingToDto(),
-                LatestMessage = latestMessage.MappingToDto(),
-            }).ToList();
+                LatestMessage = latestMessage?.MappingToDto(),
+            };
+        }).ToList();
     }
 
     private async Task<Dictionary<int, User>> GetPrivateChatRecipientDictionary(
