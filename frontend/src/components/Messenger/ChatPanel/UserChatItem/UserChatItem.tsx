@@ -54,6 +54,7 @@ const UserChatItem: FC<UserChatItemProps> = ({chat, isLastMessageOutgoing, isAct
 };
 
 
+
 export default memo(UserChatItem, (prev, next) => {
     return (
         prev.chat === next.chat &&
