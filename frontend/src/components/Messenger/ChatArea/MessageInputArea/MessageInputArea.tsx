@@ -1,10 +1,13 @@
 import styles from './MessageInputArea.module.css';
 import {ChangeEvent, useRef, useState} from "react";
-import SendMessageIcon from "../../../shared/component-icons/SendMessageIcon.tsx";
+import SendMessageIcon from "../../../../shared/component-icons/SendMessageIcon.tsx";
+import {MessageService} from "../../../../api/message-service/MessageService.ts";
+import useChatStore from "../../../../store/chat-store.ts";
 
 const MessageInputArea = () => {
     const [text, setText] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const activeChat = useChatStore(state => state.activeChat);
 
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
@@ -21,12 +24,18 @@ const MessageInputArea = () => {
         }
     };
 
-    const sendMessage = (): void => {
-        if (text.trim()) {
+    const sendMessage = async (): Promise<void> => {
+        if (text.trim() && activeChat) {
             setText('');
             if (textareaRef.current) {
                 textareaRef.current.style.height = 'auto';
             }
+            debugger
+            await MessageService.CreateMessage({
+
+                text,
+                chatId: activeChat.id
+            })
         }
     }
 

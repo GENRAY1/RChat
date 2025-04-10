@@ -1,8 +1,14 @@
-.sidebar {
+.container {
     display: flex;
     flex-direction: column;
     background: #293A4C;
     align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    height: 100vh;
 }
 .header{
     height: 65px;

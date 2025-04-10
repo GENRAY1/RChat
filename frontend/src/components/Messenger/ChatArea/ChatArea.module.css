@@ -1,7 +1,21 @@
-.chatArea{
+.container{
     display: flex;
     flex-direction: column;
     height: 100vh;
+}
+
+.informBox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.informText{
+    display: block;
+    background: #455d7e;
+    padding: 8px 12px;
+    color: white;
+    border-radius: 10px;
+    letter-spacing: 1px;
 }
 
 .header{
@@ -27,10 +41,13 @@
     color: #666;
 }
 
-.content{
+.messageList{
     flex: 1;
+    padding: 5px 20px;
     overflow-y: auto;
-    padding: 0 20px;
+    background: inherit;
+    height: 100%;
+    background-image: url("../../../shared/imgs/bg.png");
 }
 
 .bottom{
@@ -40,4 +57,12 @@
     background: #fff;
     bottom: 0;
     z-index: 1;
+}
+
+.header, .informBox{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

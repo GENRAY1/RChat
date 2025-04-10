@@ -1,0 +1,19 @@
+.container{
+    height: 100vh;
+    width: 100vw;
+}
+.layout{
+    display: grid;
+    grid-template-columns: auto 1fr 3fr;
+}
+.connectionLost{
+    text-align: center;
+    position: sticky;
+    font-size: 24px;
+    padding: 18px 0;
+    background: #419FD9;
+    letter-spacing: 2px;
+    color: white;
+    font-weight: 400;
+    text-transform: uppercase
+}

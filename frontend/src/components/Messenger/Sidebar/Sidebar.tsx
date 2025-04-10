@@ -1,7 +1,7 @@
-import MenuIcon from "../../shared/component-icons/MenuIcon.tsx";
-import AllChatsIcon from "../../shared/component-icons/AllChatsIcon.tsx";
-import PrivateChatIcon from "../../shared/component-icons/PrivateChatIcon.tsx";
-import GroupChatIcon from "../../shared/component-icons/GroupChatIcon.tsx";
+import MenuIcon from "../../../shared/component-icons/MenuIcon.tsx";
+import AllChatsIcon from "../../../shared/component-icons/AllChatsIcon.tsx";
+import PrivateChatIcon from "../../../shared/component-icons/PrivateChatIcon.tsx";
+import GroupChatIcon from "../../../shared/component-icons/GroupChatIcon.tsx";
 
 
 import styles from "./Sidebar.module.css"
@@ -9,7 +9,7 @@ import SidebarItem from "./SidebarItem/SidebarItem.tsx";
 
 const Sidebar = () => {
     return (
-        <div className={styles.sidebar}>
+        <div className={styles.container}>
             <div className={styles.header}>
                 <div>
                     <MenuIcon className={styles.menuIcon}/>

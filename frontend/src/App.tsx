@@ -2,7 +2,7 @@ import {FC} from "react";
 import {Route, Routes} from "react-router-dom";
 import LoginPage from "./pages/LoginPage.tsx";
 import ProtectedRoute from "./features/auth/components/ProtectedRoute.tsx";
-import ChatPage from "./pages/ChatPage/ChatPage.tsx";
+import MessengerPage from "./pages/MessengerPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import {ToastContainer} from "react-toastify";
 
@@ -12,7 +12,7 @@ const App: FC = () => {
         <>
             <Routes>
                 <Route element={<ProtectedRoute/>}>
-                    <Route path="/" element={<ChatPage/>}/>
+                    <Route path="/" element={<MessengerPage/>}/>
                 </Route>
 
                 <Route path="/login" element={<LoginPage />} />
