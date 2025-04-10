@@ -32,7 +32,7 @@
 }
 
 .outgoing .bubble {
-    background-color: #dcf8c6;
+    background-color: rgba(220, 248, 198, 0.73);
     border-top-right-radius: 0;
 }
 
@@ -40,15 +40,10 @@
     display: flex;
     align-items: center;
     margin-bottom: 3px;
-}
-
-.incoming .info {
     justify-content: flex-start;
+    padding: 0 10px;
 }
 
-.outgoing .info {
-    justify-content: flex-end;
-}
 
 .sender {
     font-weight: 500;
@@ -63,7 +58,7 @@
 }
 
 @media (max-width: 860px) {
-    .message {
+    .messageItem {
         display: flex;
         margin-bottom: 15px;
         max-width: 100%;
@@ -71,12 +66,16 @@
 
     .incoming {
         align-self: flex-start;
-        margin-right: 50px;
     }
 
     .outgoing {
         align-self: flex-end;
         flex-direction: row-reverse;
-        margin-left: 100px;
+    }
+    .outgoing .info {
+        justify-content: flex-end;
+    }
+    .outgoing .avatar{
+        margin-left: 8px;
     }
 }

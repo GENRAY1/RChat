@@ -1,6 +1,6 @@
 import {UserChat} from "../../models/chat/UserChat.ts";
 
-export interface GetCurrentUserChats{
+export interface GetCurrentUserChatsResponse {
     chats: Array<UserChat>
 }
 

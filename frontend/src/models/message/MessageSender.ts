@@ -1,5 +1,6 @@
 export interface MessageSender {
-    id: number,
-    firstName: string,
-    lastName?: string
+    userId: number,
+    firstname: string,
+    lastname?: string,
+    username?: string,
 }

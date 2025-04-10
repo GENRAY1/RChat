@@ -1,13 +1,7 @@
-import {ChatType} from "./ChatType.ts";
-import {ChatGroup} from "./ChatGroup.ts";
 import {Message} from "../message/Message.ts";
+import {Chat} from "./Chat.ts";
 
-export interface UserChat{
-    id: number;
+export interface UserChat extends Chat{
     displayName: string;
-    type: ChatType;
-    creatorId: number;
-    createdAt: Date;
-    groupChat: ChatGroup;
-    latestMessage: Message
+    latestMessage?: Message
 }
