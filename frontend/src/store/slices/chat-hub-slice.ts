@@ -38,7 +38,7 @@ const chatHubSlice: StateCreator<ChatStore, [], [], ChatHubSlice> = (set,get) =>
                 .build();
 
             connection.on(ChatHubEvents.ReceiveMessage, (message: Message) => {
-                const {activeChat, appendMessage, updateChatLatestMessage} = get();
+                const {activeChat, appendMessage, updateUserChatLatestMessage} = get();
 
                 //For fix dates
                 const newMessage : Message = {
@@ -56,7 +56,7 @@ const chatHubSlice: StateCreator<ChatStore, [], [], ChatHubSlice> = (set,get) =>
                     appendMessage(newMessage)
                 }
 
-                updateChatLatestMessage(message.chatId, newMessage)
+                updateUserChatLatestMessage(message.chatId, newMessage)
             });
 
             connection.onclose(() => {
