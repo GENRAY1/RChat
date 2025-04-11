@@ -1,10 +1,10 @@
 import {FC, memo} from 'react';
 import styles from './UserChatItem.module.css'
-import {ChatType} from "../../../../models/chat/ChatType.ts";
-import NameAvatar from "../../../../shared/ui/NameAvatar/NameAvatar.tsx";
-import GroupChatIcon from "../../../../shared/component-icons/GroupChatIcon.tsx";
-import {getDateOnly, getTimeOnly, isToday} from "../../../../shared/utils/date-utils.ts";
-import {UserChat} from "../../../../models/chat/UserChat.ts";
+import {ChatType} from "../../../../../models/chat/ChatType.ts";
+import NameAvatar from "../../../../../shared/ui/NameAvatar/NameAvatar.tsx";
+import GroupChatIcon from "../../../../../shared/component-icons/GroupChatIcon.tsx";
+import {getDateOnly, getTimeOnly, isToday} from "../../../../../shared/utils/date-utils.ts";
+import {UserChat} from "../../../../../models/chat/UserChat.ts";
 
 export interface UserChatItemProps {
     chat: UserChat,

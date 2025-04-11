@@ -1,5 +1,5 @@
-import { Message } from "../../models/message/Message"
-import {ChatStore} from "../chat-store.ts";
+import { Message } from "../../models/message/Message.ts"
+import {ChatStore} from "./chat-store.ts";
 import {StateCreator} from "zustand/vanilla";
 import {UserChat} from "../../models/chat/UserChat.ts";
 import {GetChatMessagesResponse} from "../../api/chat-services/chat-contracts.ts";

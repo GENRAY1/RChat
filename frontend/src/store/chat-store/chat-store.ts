@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import activeChatSlice, {ActiveChatSlice} from "./slices/active-chat-slice.ts";
-import userChatsSlice, {UserChatsSlice} from "./slices/user-chats-slice";
-import chatHubSlice, {ChatHubSlice} from "./slices/chat-hub-slice.ts";
+import activeChatSlice, {ActiveChatSlice} from "./active-chat-slice.ts";
+import userChatsSlice, {UserChatsSlice} from "./user-chats-slice.ts";
+import chatHubSlice, {ChatHubSlice} from "./chat-hub-slice.ts";
 
 
 export type ChatStore = ActiveChatSlice & UserChatsSlice & ChatHubSlice;

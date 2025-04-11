@@ -1,10 +1,10 @@
-import {useContext, useEffect, useMemo} from 'react';
-import UserChatItem from "../UserChatItem/UserChatItem.tsx";
-import styles from "./UserChatList.module.css"
-import useChatStore from "../../../../store/chat-store.ts";
+import {FC, useContext, useEffect, useMemo} from 'react';
+import UserChatItem from "./UserChatItem/UserChatItem.tsx";
+import useChatStore from "../../../../store/chat-store/chat-store.ts";
 import AuthContext, {AuthContextValue} from "../../../../features/auth/AuthContext.ts";
 
-const UserChatList = () => {
+
+const UserChatList : FC = () => {
     const fetchUserChats = useChatStore(store => store.fetchUserChats)
     const errorMessage  = useChatStore(store => store.fetchUserChatsErrorMsg)
     const activateChat = useChatStore(store => store.activateChat);
@@ -34,7 +34,7 @@ const UserChatList = () => {
         />);
 
     return (
-        <div className={styles.container}>
+        <div>
             {
                 errorMessage
                 ? <div>{errorMessage}</div>

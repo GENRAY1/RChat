@@ -3,7 +3,7 @@ import styles from "./Messenger.module.css";
 import Sidebar from "./Sidebar/Sidebar.tsx";
 import ChatPanel from "./ChatPanel/ChatPanel.tsx";
 import ChatArea from "./ChatArea/ChatArea.tsx";
-import useChatStore from "../../store/chat-store.ts";
+import useChatStore from "../../store/chat-store/chat-store.ts";
 
 
 interface Messenger {

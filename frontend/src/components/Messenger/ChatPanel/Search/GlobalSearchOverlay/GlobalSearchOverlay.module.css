@@ -1,0 +1,39 @@
+.container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background:white;
+}
+
+.containerHidden{
+    display: none;
+}
+
+.informMessage{
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.informMessageTitle{
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.informMessageText{
+    font-size: 14px;
+}
+
+.loadingBlock{
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    color: #4c4444;
+    background: #eaeaea;
+}

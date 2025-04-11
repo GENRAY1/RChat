@@ -1,5 +1,5 @@
 import {HubConnection, HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
-import {ChatStore} from "../chat-store.ts";
+import {ChatStore} from "./chat-store.ts";
 import {StateCreator} from "zustand/vanilla";
 import {Message} from "../../models/message/Message.ts";
 
