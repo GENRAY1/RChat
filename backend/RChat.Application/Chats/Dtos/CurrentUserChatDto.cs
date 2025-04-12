@@ -15,6 +15,8 @@ public class CurrentUserChatDto
     
     public required DateTime CreatedAt { get; init; }
     
+    public int MemberCount { get; init; }
+    
     public ChatGroupDto? GroupChat { get; init; }
     
     public MessageDto? LatestMessage { get; init; }

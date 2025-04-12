@@ -56,6 +56,7 @@ public class GetCurrentUserChatsQueryHandler(
                 Type = chat.Type,
                 CreatorId = chat.CreatorId,
                 CreatedAt = chat.CreatedAt,
+                MemberCount = chat.MemberCount,
                 GroupChat = chat.GroupChat?.MappingToDto(),
                 LatestMessage = latestMessage?.MappingToDto(),
             };
