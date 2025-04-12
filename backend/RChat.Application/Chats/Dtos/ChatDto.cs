@@ -9,5 +9,6 @@ public class ChatDto
     public required int CreatorId { get; init; }
     public required DateTime CreatedAt { get; init; }
     public DateTime? DeletedAt { get; init; }
+    public int MemberCount { get; init; }
     public ChatGroupDto? GroupChat { get; init; }
 }

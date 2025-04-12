@@ -7,6 +7,7 @@ public class Chat : Entity
     public required ChatType Type { get; set; }
     public required int CreatorId { get; init; }
     public required DateTime CreatedAt { get; init; }
+    public int MemberCount { get; init; }
     public DateTime? DeletedAt { get; set; } 
     public ChatGroup? GroupChat { get; set; }
     
