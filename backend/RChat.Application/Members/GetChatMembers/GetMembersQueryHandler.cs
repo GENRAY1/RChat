@@ -1,7 +1,7 @@
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
 using RChat.Application.Members.Dtos;
+using RChat.Application.Services.Authentication;
 using RChat.Domain.Accounts;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;

@@ -1,7 +1,8 @@
+using RChat.Application.Abstractions;
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
-using RChat.Application.Messages.Extensions;
+using RChat.Application.Services.Authentication;
+using RChat.Application.Services.Search.Message;
 using RChat.Domain.Accounts;
 using RChat.Domain.Messages;
 using RChat.Domain.Messages.Repository;
@@ -11,6 +12,8 @@ namespace RChat.Application.Messages.Update;
 
 public class UpdateMessageCommandHandler(
     IMessageRepository messageRepository,
+    IMessageSearchService messageSearchService,
+    IBackgroundTaskQueue backgroundTaskQueue,
     IAuthContext authContext
     ) : ICommandHandler<UpdateMessageCommand, UpdateMessageDtoResponse>
 {
@@ -35,6 +38,20 @@ public class UpdateMessageCommandHandler(
         
         await messageRepository.UpdateAsync(message);
 
+        await messageSearchService.UpdateAsync(
+            message.Id,
+            new UpdateMessageDocument { Text = message.Text }, 
+            cancellationToken);
+        
+        
+        backgroundTaskQueue.Enqueue(async token =>
+        {
+            await messageSearchService.UpdateAsync(
+                message.Id,
+                new UpdateMessageDocument { Text = message.Text }, 
+                token);
+        });
+        
         return new UpdateMessageDtoResponse
         {
             MessageId = message.Id,

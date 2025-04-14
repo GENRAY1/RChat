@@ -1,6 +1,9 @@
+using RChat.Application.Abstractions;
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
+using RChat.Application.Services.Authentication;
+using RChat.Application.Services.Search.Chat;
+using RChat.Application.Services.Search.Message;
 using RChat.Domain.Accounts;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
@@ -10,7 +13,9 @@ namespace RChat.Application.Chats.SoftDelete;
 
 public class SoftDeleteChatCommandHandler(
     IChatRepository chatRepository,
-    IAuthContext authContext
+    IAuthContext authContext,
+    IChatSearchService chatSearchService,
+    IBackgroundTaskQueue backgroundTaskQueue
     ) : ICommandHandler<SoftDeleteChatCommand>
 {
     public async Task Handle(SoftDeleteChatCommand request, CancellationToken cancellationToken)
@@ -30,6 +35,17 @@ public class SoftDeleteChatCommandHandler(
         }
         
         chat.DeletedAt = DateTime.UtcNow;
+        
+        if (chat.Type == ChatType.Group)
+        {
+            backgroundTaskQueue.Enqueue(async token =>
+            {
+                await chatSearchService.UpdateAsync(
+                    chat.Id,
+                    new UpdateChatDocument { DeletedAt = chat.DeletedAt },
+                    token);
+            });
+        }
 
         await chatRepository.UpdateAsync(chat);
     }

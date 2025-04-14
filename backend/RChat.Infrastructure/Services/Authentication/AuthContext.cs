@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
+using RChat.Application.Services.Authentication;
 using RChat.Domain.Accounts;
 using RChat.Domain.Accounts.Repository;
 using RChat.Domain.Users;

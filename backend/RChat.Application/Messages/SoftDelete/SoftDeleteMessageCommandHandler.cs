@@ -1,7 +1,8 @@
+using RChat.Application.Abstractions;
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
-using RChat.Application.Messages.Extensions;
+using RChat.Application.Services.Authentication;
+using RChat.Application.Services.Search.Message;
 using RChat.Domain.Accounts;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
@@ -14,7 +15,9 @@ namespace RChat.Application.Messages.SoftDelete;
 public class SoftDeleteMessageCommandHandler(
     IMessageRepository messageRepository,
     IChatRepository chatRepository,
-    IAuthContext authContext
+    IAuthContext authContext,
+    IMessageSearchService messageSearchService,
+    IBackgroundTaskQueue backgroundTaskQueue
     ) : ICommandHandler<SoftDeleteMessageCommand, DeleteMessageDtoResponse>
 {
     public async Task<DeleteMessageDtoResponse> Handle(SoftDeleteMessageCommand request, CancellationToken cancellationToken)
@@ -38,6 +41,19 @@ public class SoftDeleteMessageCommandHandler(
         message.DeletedAt = DateTime.UtcNow;
         
         await messageRepository.UpdateAsync(message);
+
+        await messageSearchService.UpdateAsync(
+            message.Id,
+            new UpdateMessageDocument { DeletedAt = message.DeletedAt },
+            cancellationToken);
+        
+        backgroundTaskQueue.Enqueue(async token =>
+        {
+            await messageSearchService.UpdateAsync(
+                message.Id,
+                new UpdateMessageDocument { DeletedAt = message.DeletedAt },
+                token);
+        });
         
         return new DeleteMessageDtoResponse
         {

@@ -1,5 +1,4 @@
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
 using RChat.Application.Users.CommonDtos;
 using RChat.Application.Users.Extensions;
