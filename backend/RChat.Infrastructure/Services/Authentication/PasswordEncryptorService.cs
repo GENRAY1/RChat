@@ -1,5 +1,4 @@
-using RChat.Application.Abstractions.Services;
-using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Application.Services.Authentication;
 
 namespace RChat.Infrastructure.Services.Authentication;
 

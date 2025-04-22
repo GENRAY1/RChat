@@ -3,8 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using RChat.Application.Abstractions.Services.Authentication;
-using RChat.Application.Accounts.Dtos;
+using RChat.Application.Services.Authentication;
 
 namespace RChat.Infrastructure.Services.Authentication;
 

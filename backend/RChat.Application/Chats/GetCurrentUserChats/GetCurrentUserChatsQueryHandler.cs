@@ -1,8 +1,8 @@
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Chats.Dtos;
 using RChat.Application.Chats.Extensions;
 using RChat.Application.Messages.Extensions;
+using RChat.Application.Services.Authentication;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;

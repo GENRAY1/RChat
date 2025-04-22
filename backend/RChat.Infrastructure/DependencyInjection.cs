@@ -1,20 +1,31 @@
 ﻿using System.Text;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RChat.Application.Abstractions.Services.Authentication;
+using RChat.Application.Abstractions;
+using RChat.Application.Services.Authentication;
+using RChat.Application.Services.Search.Chat;
+using RChat.Application.Services.Search.GlobalSearch;
+using RChat.Application.Services.Search.Message;
+using RChat.Application.Services.Search.User;
 using RChat.Domain.Accounts.Repository;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members.Repository;
 using RChat.Domain.Messages.Repository;
 using RChat.Domain.Users.Repository;
+using RChat.Infrastructure.Background.TaskQueue;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.Repositories;
 using RChat.Infrastructure.Exceptions;
 using RChat.Infrastructure.Services.Authentication;
+using RChat.Infrastructure.Services.Search;
+using RChat.Infrastructure.Services.Search.Common;
+using RChat.Infrastructure.Services.Search.GlobalSearch;
 
 namespace RChat.Infrastructure;
 
@@ -23,8 +34,9 @@ public static class DependencyInjection
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerService();
-        
+        services.AddBackgroundServices();
         services.AddStorageServices(configuration);
+        services.AddSearchServices(configuration);
         services.AddAuthenticationService(configuration);
     }
 
@@ -49,6 +61,30 @@ public static class DependencyInjection
         services.AddScoped<IAccountRepository, AccountRepository>();
     }
 
+    private static void AddSearchServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        ElasticsearchOptions? elasticConfig =
+            configuration.GetSection("ElasticSearch").Get<ElasticsearchOptions>();
+        
+        if(elasticConfig is null)
+            throw new ConfigurationException("Elastic search configuration is missing or invalid");
+
+        var settings = new ElasticsearchClientSettings(new Uri(elasticConfig.Url))
+            .Authentication(new BasicAuthentication(elasticConfig.Username, elasticConfig.Password));
+        
+        services.AddSingleton<ElasticsearchClient>(new ElasticsearchClient(settings));
+        services.AddScoped<IUserSearchService, UserSearchService>();
+        services.AddScoped<IChatSearchService, ChatSearchService>();
+        services.AddScoped<IMessageSearchService, MessageSearchService>();
+        services.AddScoped<IGlobalSearchService, GlobalSearchService>();
+    }
+
+    private static void AddBackgroundServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+        services.AddHostedService<TaskQueueBackgroundService>();
+    }
+    
     private static void AddSwaggerService(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>
