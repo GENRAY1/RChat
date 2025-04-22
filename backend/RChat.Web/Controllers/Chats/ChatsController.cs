@@ -86,6 +86,7 @@ public class ChatsController(ISender sender)
             CreatorId = chat.CreatorId,
             DeletedAt = chat.DeletedAt,
             GroupChat = chat.GroupChat,
+            MemberCount = chat.MemberCount,
             Type = chat.Type
         });
     }

@@ -1,4 +1,6 @@
+using RChat.Application.Abstractions;
 using RChat.Application.Exceptions;
+using RChat.Application.Services.Search.Chat;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
@@ -10,13 +12,15 @@ namespace RChat.Application.Chats.Create;
 public class CreateGroupChatAsync(
     User creator,
     IChatRepository chatRepository,
-    IMemberRepository memberRepository) 
-    : IChatCreationStrategy
+    IMemberRepository memberRepository,
+    IChatSearchService chatSearchService,
+    IBackgroundTaskQueue backgroundTaskQueue
+    ) : IChatCreationStrategy
 {
     public async Task<int> CreateChatAsync(CreateChatCommand request)
     {
         if(request.GroupDetails is null)
-            throw new ValidationException("Group chat must have group details");
+            throw new ValidationException("Chat chat must have group details");
         
         DateTime now = DateTime.UtcNow;
 
@@ -33,15 +37,25 @@ public class CreateGroupChatAsync(
             }
         };
         
-        int chatId = await chatRepository.CreateAsync(chat);
+        chat.Id = await chatRepository.CreateAsync(chat);
+        
+        backgroundTaskQueue.Enqueue(async token =>
+        {
+            await chatSearchService.IndexAsync(chat.Id, new ChatDocument
+            {
+                Type = request.Type,
+                Name = request.GroupDetails.Name,
+                IsPrivate = request.GroupDetails.IsPrivate
+            }, token);
+        });
         
         await memberRepository.CreateAsync(new Member
         {
-            ChatId = chatId,
+            ChatId = chat.Id,
             UserId = creator.Id,
             JoinedAt = now
         });
         
-        return chatId;
+        return chat.Id;
     }
 }

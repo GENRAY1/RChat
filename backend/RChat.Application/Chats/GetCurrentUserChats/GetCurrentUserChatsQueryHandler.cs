@@ -1,8 +1,8 @@
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Chats.Dtos;
 using RChat.Application.Chats.Extensions;
 using RChat.Application.Messages.Extensions;
+using RChat.Application.Services.Authentication;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
@@ -56,6 +56,7 @@ public class GetCurrentUserChatsQueryHandler(
                 Type = chat.Type,
                 CreatorId = chat.CreatorId,
                 CreatedAt = chat.CreatedAt,
+                MemberCount = chat.MemberCount,
                 GroupChat = chat.GroupChat?.MappingToDto(),
                 LatestMessage = latestMessage?.MappingToDto(),
             };

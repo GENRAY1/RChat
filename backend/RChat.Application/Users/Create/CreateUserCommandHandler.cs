@@ -1,6 +1,8 @@
+using RChat.Application.Abstractions;
 using RChat.Application.Abstractions.Messaging;
-using RChat.Application.Abstractions.Services.Authentication;
 using RChat.Application.Exceptions;
+using RChat.Application.Services.Authentication;
+using RChat.Application.Services.Search.User;
 using RChat.Application.Users.CommonDtos;
 using RChat.Application.Users.Extensions;
 using RChat.Domain.Accounts;
@@ -13,7 +15,9 @@ namespace RChat.Application.Users.Create;
 public class CreateUserCommandHandler(
     IAuthContext authContext,
     IAccountRepository accountRepository,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    IUserSearchService userSearchService,
+    IBackgroundTaskQueue backgroundTaskQueue
 ) : ICommandHandler<CreateUserCommand, UserDto>
 {
     public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -35,10 +39,18 @@ public class CreateUserCommandHandler(
             CreatedAt = DateTime.UtcNow
         };
 
-        int id = await userRepository.CreateAsync(user);
-
-        user.Id = id;
-
+        user.Id = await userRepository.CreateAsync(user);
+        
+        backgroundTaskQueue.Enqueue(async token =>
+        {
+            await userSearchService.IndexAsync(user.Id, new UserDocument
+            {
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                Username = user.Username
+            }, token);
+        });
+        
         return user.MappingToDto();
     }
 }

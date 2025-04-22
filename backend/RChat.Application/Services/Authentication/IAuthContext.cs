@@ -1,7 +1,6 @@
-using RChat.Domain.Accounts;
 using RChat.Domain.Users;
 
-namespace RChat.Application.Abstractions.Services.Authentication;
+namespace RChat.Application.Services.Authentication;
 
 public interface IAuthContext
 {

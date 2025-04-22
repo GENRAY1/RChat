@@ -12,6 +12,7 @@ public static class ChatMappingExtensions
         CreatedAt = chat.CreatedAt,
         GroupChat = chat.GroupChat?.MappingToDto(),
         DeletedAt = chat.DeletedAt,
+        MemberCount = chat.MemberCount,
         Type = chat.Type
     };
 

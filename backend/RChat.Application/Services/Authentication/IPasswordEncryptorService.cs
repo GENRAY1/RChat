@@ -1,4 +1,4 @@
-namespace RChat.Application.Abstractions.Services.Authentication;
+namespace RChat.Application.Services.Authentication;
 
 public interface IPasswordEncryptorService
 {
