@@ -1,4 +1,4 @@
 export enum GlobalSearchType {
-    User = 'Chat',
-    Group = 'Group'
+    User = 'User',
+    Chat = 'Chat'
 }

@@ -1,4 +1,4 @@
-import { FC} from 'react';
+import {FC} from 'react';
 import styles from './GlobalSearch.module.css'
 import useGlobalSearchState from "../../../../../store/global-search-store/global-search-store.ts";
 
@@ -6,10 +6,9 @@ import useGlobalSearchState from "../../../../../store/global-search-store/globa
 const GlobalSearch : FC= () => {
     const isActive = useGlobalSearchState(s => s.isOverlayActive)
     const query = useGlobalSearchState(x => x.query)
-    const setQuery = useGlobalSearchState(x => x.setQuery)
+    const search = useGlobalSearchState(x => x.search)
     const openSearchOverlay = useGlobalSearchState(x => x.openOverlay)
     const closeSearchOverlay = useGlobalSearchState(x => x.closeOverlay)
-
     return (
         <div className={styles.container}>
             <input
@@ -18,7 +17,7 @@ const GlobalSearch : FC= () => {
                 autoComplete="off"
                 value= {query}
                 onFocus={()=> openSearchOverlay()}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={async (e) => await search(e.target.value)}
                 className={styles.searchInput}
             />
             {isActive && <button onClick={() => closeSearchOverlay()} className={styles.closeButton}>✖</button>}

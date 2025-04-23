@@ -16,8 +16,6 @@ export interface UserChatsSlice{
     setUserChatTypeFilter: (type?: ChatType) => void
 }
 
-
-
 const userChatsSlice: StateCreator<ChatStore, [], [], UserChatsSlice> = (set) => ({
     userChats: [],
     fetchUserChatsErrorMsg: undefined,
@@ -45,7 +43,7 @@ const userChatsSlice: StateCreator<ChatStore, [], [], UserChatsSlice> = (set) =>
         }
     },
     userChatTypeFilter: undefined,
-    setUserChatTypeFilter:(type?:ChatType) => set({userChatTypeFilter: type})
+    setUserChatTypeFilter:(type?:ChatType) => set({userChatTypeFilter: type}),
 });
 
 export default userChatsSlice;

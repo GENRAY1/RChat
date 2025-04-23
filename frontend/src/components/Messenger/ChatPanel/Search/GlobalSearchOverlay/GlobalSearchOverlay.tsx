@@ -2,6 +2,7 @@ import styles from './GlobalSearchOverlay.module.css'
 import useGlobalSearchState from "../../../../../store/global-search-store/global-search-store.ts";
 import GlobalSearchItem from "../GlobalSearchItem/GlobalSearchItem.tsx";
 
+
 const GlobalSearchOverlay = () => {
     const isActive = useGlobalSearchState(s => s.isOverlayActive)
     const informMessage = useGlobalSearchState(s => s.message)
@@ -18,7 +19,7 @@ const GlobalSearchOverlay = () => {
                 </div>
             }
             <div className={styles.content}>
-                {items.map(item => <GlobalSearchItem item={item}></GlobalSearchItem>)}
+                {items.map(item => <GlobalSearchItem item={item}/>)}
             </div>
 
         </div>
