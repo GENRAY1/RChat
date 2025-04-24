@@ -1,7 +1,7 @@
 import styles from "./ChatArea.module.css"
 import MessageItem from "./MessageItem/MessageItem.tsx";
 import MessageInputArea from "./MessageInputArea/MessageInputArea.tsx";
-import useChatStore from "../../../store/chat-store.ts";
+import useChatStore from "../../../store/chat-store/chat-store.ts";
 import {FC, useContext, useEffect, useRef} from "react";
 import AuthContext, {AuthContextValue} from "../../../features/auth/AuthContext.ts";
 

@@ -3,7 +3,7 @@ import {UserService} from "../../api/user-service/UserService.ts";
 import {ApiErrorData, getApiErrorOrDefault} from "../../api/api-error-data.ts";
 
 import {StateCreator} from "zustand/vanilla";
-import {ChatStore} from "../chat-store.ts";
+import {ChatStore} from "./chat-store.ts";
 import {Message} from "../../models/message/Message.ts";
 import {ChatType} from "../../models/chat/ChatType.ts";
 
@@ -16,9 +16,7 @@ export interface UserChatsSlice{
     setUserChatTypeFilter: (type?: ChatType) => void
 }
 
-
-
-const userChatsSlice: StateCreator<ChatStore, [], [], UserChatsSlice> = (set, get) => ({
+const userChatsSlice: StateCreator<ChatStore, [], [], UserChatsSlice> = (set) => ({
     userChats: [],
     fetchUserChatsErrorMsg: undefined,
     updateUserChatLatestMessage: (chatId, message) : void =>{
@@ -45,7 +43,7 @@ const userChatsSlice: StateCreator<ChatStore, [], [], UserChatsSlice> = (set, ge
         }
     },
     userChatTypeFilter: undefined,
-    setUserChatTypeFilter:(type?:ChatType) => set({userChatTypeFilter: type})
+    setUserChatTypeFilter:(type?:ChatType) => set({userChatTypeFilter: type}),
 });
 
 export default userChatsSlice;

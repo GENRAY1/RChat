@@ -4,6 +4,13 @@
     height: 100vh;
     border-right: 1px solid #ece4e4;
     background-color: #FFF;
+    position: relative;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
 }
 .header {
     flex-shrink: 0;
@@ -17,17 +24,10 @@
     z-index: 1;
 }
 
-.searchInput {
-    width: 100%;
-    padding: 12px 12px;
-    border-radius: 8px;
-    border: none;
-    background-color: #eaeaea;
-    font-size: 14px;
-}
-
 .content{
     overflow-y: auto;
+    position: relative;
+    height: 100%;
 }
 
 @media (max-width: 860px) {

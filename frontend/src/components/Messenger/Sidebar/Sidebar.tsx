@@ -4,7 +4,7 @@ import PrivateChatIcon from "../../../shared/component-icons/PrivateChatIcon.tsx
 import GroupChatIcon from "../../../shared/component-icons/GroupChatIcon.tsx";
 import styles from "./Sidebar.module.css"
 import SidebarItem from "./SidebarItem/SidebarItem.tsx";
-import useChatStore from "../../../store/chat-store.ts";
+import useChatStore from "../../../store/chat-store/chat-store.ts";
 import {ChatType} from "../../../models/chat/ChatType.ts";
 import {useState} from "react";
 

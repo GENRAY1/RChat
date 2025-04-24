@@ -1,0 +1,26 @@
+.container {
+    width: 100%;
+    border-radius: 8px;
+    background-color: #eaeaea;
+    display: flex;
+    justify-content: space-between;
+}
+.searchInput{
+    border: none;
+    width: 100%;
+    background: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: inherit;
+    outline: none;
+}
+
+.closeButton{
+    background: inherit;
+    font-size: 18px;
+    border: none;
+    padding: 0 12px;
+    border-radius: inherit;
+    outline: none;
+    cursor:pointer;
+}
