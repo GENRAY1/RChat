@@ -49,6 +49,7 @@ public class GetMembersQueryHandler(
             {
                 Pagination = request.Pagination,
                 Sorting = request.Sorting,
+                UserIds = request.UserIds,
                 ChatIds = [request.ChatId]
             });
         

@@ -132,6 +132,7 @@ public class ChatsController(ISender sender)
     {
         List<MemberDto> members = await sender.Send(new GetMembersQuery
         {
+            UserIds = request.UserIds,
             Sorting = request.Sorting,
             Pagination = new PaginationDto
             {
