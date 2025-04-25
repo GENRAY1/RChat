@@ -6,6 +6,8 @@ public interface IChatRepository
     
     public Task<List<Chat>> GetListAsync(GetChatListParameters parameters);
     
+    public Task<List<UserChat>> GetUserChatsAsync(GetUserChatsParameters parameters); 
+    
     public Task<int> CreateAsync(Chat chat);
     
     public Task UpdateAsync(Chat chat);

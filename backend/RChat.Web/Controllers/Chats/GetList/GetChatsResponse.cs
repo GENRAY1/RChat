@@ -1,4 +1,4 @@
-using RChat.Application.Chats.Dtos;
+using RChat.Application.Dtos.Chats;
 
 namespace RChat.Web.Controllers.Chats.GetList;
 

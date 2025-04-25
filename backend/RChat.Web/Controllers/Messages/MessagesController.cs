@@ -1,10 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using RChat.Application.Messages.Create;
-using RChat.Application.Messages.Dtos;
-using RChat.Application.Messages.SoftDelete;
-using RChat.Application.Messages.Update;
+using RChat.Application.Dtos.Messages;
+using RChat.Application.Extensions.Messages;
+using RChat.Application.Handlers.Messages.Create;
+using RChat.Application.Handlers.Messages.SoftDelete;
+using RChat.Application.Handlers.Messages.Update;
 using RChat.Web.Hubs.Chats;
 
 namespace RChat.Web.Controllers.Messages;

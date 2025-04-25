@@ -1,5 +1,5 @@
-using RChat.Application.Accounts.Dtos;
-using RChat.Application.Users.CommonDtos;
+using RChat.Application.Dtos.Accounts;
+using RChat.Application.Dtos.Users;
 
 namespace RChat.Web.Controllers.Account.GetCurrent;
 

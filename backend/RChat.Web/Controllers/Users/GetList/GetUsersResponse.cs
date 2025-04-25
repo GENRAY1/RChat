@@ -1,4 +1,4 @@
-using RChat.Application.Users.CommonDtos;
+using RChat.Application.Dtos.Users;
 
 namespace RChat.Web.Controllers.Users.GetList;
 

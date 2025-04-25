@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RChat.Application.Abstractions;
+using RChat.Application.Services.BackgroundTaskQueue;
 
 namespace RChat.Infrastructure.Background.TaskQueue;
 

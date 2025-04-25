@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Members.Create;
-using RChat.Application.Members.Delete;
+using RChat.Application.Handlers.Members.Create;
+using RChat.Application.Handlers.Members.Delete;
 
 namespace RChat.Web.Controllers.Members;
 
