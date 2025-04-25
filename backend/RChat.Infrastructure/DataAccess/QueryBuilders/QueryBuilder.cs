@@ -1,6 +1,7 @@
 using System.Text;
 using Dapper;
-using RChat.Domain.Common;
+using RChat.Application.Common;
+using RChat.Application.Common.Sorting;
 
 namespace RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -39,12 +40,15 @@ public class QueryBuilder(string baseQuery)
     {
         if (sortingColumnDbMapping.TryGetValue(sorting.Column, out var columnName))
         {
-            _orderBySql = $" ORDER BY {columnName} {sorting.Direction}";
+            _orderBySql = $" ORDER BY {columnName} {sorting.Direction.ToString()}";
             return;
         }
         
         throw new ArgumentException("Invalid sorting column " + sorting.Column);
     }
+
+    public void AddSorting(string column, SortingDirection direction) =>
+        _orderBySql = $" ORDER BY {column} {direction.ToString()}";
     
     public void AddSorting<T>(Dictionary<T, string> sortingColumnDbMapping, MultiSortingDto<T> sorting) 
         where T : Enum
@@ -55,7 +59,7 @@ public class QueryBuilder(string baseQuery)
                 ?? throw new ArgumentException("Invalid sorting column " + columnEnum))
             .ToArray();
 
-        _orderBySql = $" ORDER BY {string.Join(", ", columnNames)} {sorting.Direction}";
+        _orderBySql = $" ORDER BY {string.Join(", ", columnNames)} {sorting.Direction.ToString()}";
     }
 
     public string BuildQuery()

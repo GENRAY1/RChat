@@ -1,15 +1,13 @@
-using RChat.Domain.Common;
+using RChat.Application.Common;
+using RChat.Application.Common.Sorting;
 
 namespace RChat.Domain.Chats.Repository;
 
 public class GetChatListParameters
 {
-    public int[]? UserIds { get; set; }
-    public int[]? ChatIds { get; set; }
-    public ChatType? Type { get; set; }
-
-    public int? OnlyAccessibleByUserId { get; set; }
-    public bool? OnlyActive { get; set; }
-    public SortingDto<ChatSortingColumn>? Sorting{ get; set; }
-    public PaginationDto? Pagination { get; set; }
+    public int[]? ChatIds { get; init; }
+    public ChatType? Type { get; init; }
+    public bool? OnlyActive { get; init; }
+    public SortingDto<ChatSortingColumn>? Sorting{ get; init; }
+    public PaginationDto? Pagination { get; init; }
 }

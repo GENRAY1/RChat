@@ -1,4 +1,4 @@
-using RChat.Domain.Common;
+using RChat.Application.Common.Sorting;
 using RChat.Domain.Members;
 
 namespace RChat.Web.Controllers.Chats.GetChatMembers;

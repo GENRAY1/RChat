@@ -1,7 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.GlobalSearch;
+using RChat.Application.Dtos.GlobalSearch;
+using RChat.Application.Handlers.GlobalSearch;
 
 namespace RChat.Web.Controllers.Search;
 

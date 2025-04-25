@@ -1,5 +1,5 @@
+using RChat.Application.Common.Sorting;
 using RChat.Domain.Chats;
-using RChat.Domain.Common;
 
 namespace RChat.Web.Controllers.Chats.GetList;
 

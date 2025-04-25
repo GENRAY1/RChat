@@ -1,5 +1,5 @@
 using System.Threading.Channels;
-using RChat.Application.Abstractions;
+using RChat.Application.Services.BackgroundTaskQueue;
 
 namespace RChat.Infrastructure.Background.TaskQueue;
 

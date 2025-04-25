@@ -1,6 +1,5 @@
-using RChat.Domain.Common;
+using RChat.Application.Common.Sorting;
 using RChat.Domain.Users;
-using RChat.Domain.Users.Repository;
 
 namespace RChat.Web.Controllers.Users.GetList;
 

@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Accounts.Dtos;
-using RChat.Application.Accounts.GetCurrent;
-using RChat.Application.Accounts.Login;
-using RChat.Application.Accounts.Register;
+using RChat.Application.Dtos.Accounts;
+using RChat.Application.Handlers.Accounts.GetCurrent;
+using RChat.Application.Handlers.Accounts.Login;
+using RChat.Application.Handlers.Accounts.Register;
 using RChat.Web.Controllers.Account.GetCurrent;
 using RChat.Web.Controllers.Account.Login;
 using RChat.Web.Controllers.Account.Register;

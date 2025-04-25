@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using RChat.Application.Chats.CheckAccess;
-using RChat.Application.Chats.Dtos;
-using RChat.Application.Chats.GetCurrentUserChats;
+using RChat.Application.Dtos.Chats;
+using RChat.Application.Handlers.Chats.CheckAccess;
+using RChat.Application.Handlers.Chats.GetUserChats;
 
 namespace RChat.Web.Hubs.Chats;
 
@@ -27,7 +27,7 @@ public class ChatHub(ISender sender) : Hub
     
     public override async Task OnConnectedAsync()
     {
-        List<CurrentUserChatDto> userChats = await sender.Send(new GetCurrentUserChatsQuery());
+        List<UserChatDto> userChats = await sender.Send(new GetUserChatsQuery());
 
         foreach (var chat in userChats)
         {

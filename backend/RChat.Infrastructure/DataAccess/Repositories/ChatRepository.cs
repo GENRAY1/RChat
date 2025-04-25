@@ -1,6 +1,10 @@
 using Dapper;
+using RChat.Application.Common.Sorting;
+using RChat.Application.Dtos.Chats;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
+using RChat.Domain.Messages;
+using RChat.Domain.Users;
 using RChat.Infrastructure.DataAccess.Connections;
 using RChat.Infrastructure.DataAccess.QueryBuilders;
 
@@ -83,25 +87,6 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
             
             queryBuilder.AddSorting(sortingColumnDbMapping, parameters.Sorting);
         }
-        
-        bool needIncludeMembers =
-            parameters.UserIds is not null 
-            || parameters.OnlyAccessibleByUserId is not null;
-        
-        if (needIncludeMembers) 
-            queryBuilder.AddJoin("JOIN public.member AS m ON c.id = m.chat_id");
-        
-        if (parameters.UserIds is not null)
-        {
-            queryBuilder.AddCondition("m.user_id = ANY(@UserIds)");
-            queryBuilder.AddParameter("@UserIds", parameters.UserIds);
-        }
-            
-        if(parameters.OnlyAccessibleByUserId is not null)
-        {
-            queryBuilder.AddCondition("(cg.is_private = FALSE OR m.user_id = @UserId)");
-            queryBuilder.AddParameter("@UserId", parameters.OnlyAccessibleByUserId);
-        }
 
         if (parameters.OnlyActive is true)
         {
@@ -131,6 +116,110 @@ public class ChatRepository(IDbConnectionFactory connectionFactory)
             },
             param: queryBuilder.GetParameters(),
             splitOn: $"{nameof(Chat.Id)}, {nameof(ChatGroup.ChatId)}");
+
+        return chats.ToList();
+    }
+
+    public async Task<List<UserChat>> GetUserChatsAsync(GetUserChatsParameters parameters)
+    {
+        const string defaultSql =
+            $"""
+             SELECT 
+                 c.id AS {nameof(UserChat.Id)},
+                 c.type AS {nameof(UserChat.Type)},
+                 c.creator_id AS {nameof(UserChat.CreatorId)},
+                 c.deleted_at AS {nameof(UserChat.DeletedAt)},
+                 c.created_at AS {nameof(UserChat.CreatedAt)},
+                 c.member_count AS {nameof(UserChat.MemberCount)},
+                 cg.chat_id AS {nameof(UserChat.GroupChat.ChatId)},
+                 cg.name AS {nameof(UserChat.GroupChat.Name)},
+                 cg.description AS {nameof(UserChat.GroupChat.Description)},
+                 cg.is_private AS {nameof(UserChat.GroupChat.IsPrivate)},
+                 lm.id AS {nameof(UserChat.LatestMessage.Id)},
+                 lm.text AS {nameof(UserChat.LatestMessage.Text)},
+                 lm.chat_id AS {nameof(UserChat.LatestMessage.ChatId)},
+                 lm.sender_id AS {nameof(UserChat.LatestMessage.SenderId)},
+                 lm.reply_to_message_id AS {nameof(UserChat.LatestMessage.ReplyToMessageId)},
+                 lm.created_at AS {nameof(UserChat.LatestMessage.CreatedAt)},
+                 lm.updated_at AS {nameof(UserChat.LatestMessage.UpdatedAt)},
+                 lm.deleted_at AS {nameof(UserChat.LatestMessage.DeletedAt)},
+                 lmu.id AS {nameof(UserChat.LatestMessage.Sender.Id)},
+                 lmu.account_id AS {nameof(UserChat.LatestMessage.Sender.AccountId)},
+                 lmu.username AS {nameof(UserChat.LatestMessage.Sender.Username)},
+                 lmu.firstname AS {nameof(UserChat.LatestMessage.Sender.Firstname)},
+                 lmu.lastname AS {nameof(UserChat.LatestMessage.Sender.Lastname)},
+                 lmu.description AS {nameof(UserChat.LatestMessage.Sender.Description)},
+                 lmu.date_of_birth AS {nameof(UserChat.LatestMessage.Sender.DateOfBirth)},
+                 lmu.created_at AS {nameof(UserChat.LatestMessage.Sender.CreatedAt)},
+                 lmu.updated_at AS {nameof(UserChat.LatestMessage.Sender.UpdatedAt)}
+             FROM public.chat AS c
+             JOIN member AS m1 ON m1.chat_id = c.id AND m1.user_id = @UserId
+             LEFT JOIN public.chat_group AS cg ON cg.chat_id = c.id
+             LEFT JOIN LATERAL (
+                 SELECT m.* 
+                 FROM public.message AS m
+                 WHERE m.chat_id = c.id AND m.deleted_at IS NULL
+                 ORDER BY m.created_at DESC 
+                 LIMIT 1
+             ) AS lm ON TRUE
+             LEFT JOIN public.user AS lmu ON lmu.id = lm.sender_id
+             """;
+
+        QueryBuilder queryBuilder = new QueryBuilder(defaultSql);
+        
+        queryBuilder.AddCondition("c.deleted_at IS NULL");
+        queryBuilder.AddParameter("@UserId", parameters.UserId);
+        queryBuilder.AddSorting("COALESCE(lm.created_at, c.created_at)", SortingDirection.Desc);
+        
+        if (parameters.Pagination is not null)
+        {
+            queryBuilder.AddPagination(parameters.Pagination);
+        }
+        
+        if (parameters.ChatIds is not null)
+        {
+            queryBuilder.AddCondition("c.id = ANY(@ChatIds)");
+            queryBuilder.AddParameter("@ChatIds", parameters.ChatIds);
+        }
+
+        if (parameters.Type is not null)
+        {
+            queryBuilder.AddCondition("c.type = @Type");
+            queryBuilder.AddParameter("@Type", parameters.Type);
+        }
+
+        if (parameters.SecondUserId is not null)
+        {
+            queryBuilder.AddJoin("JOIN member AS m2 ON m2.chat_id = c.id AND m2.user_id = @SecondUserId");
+            queryBuilder.AddParameter("@SecondUserId", parameters.SecondUserId.Value);
+        }
+        
+        using var connection = await connectionFactory.CreateAsync();
+        
+        string[] splitOn =
+        [
+            nameof(UserChat.Id),
+            nameof(UserChat.GroupChat.ChatId),
+            nameof(UserChat.LatestMessage.Id),
+            nameof(UserChat.LatestMessage.Sender.Id)
+        ];
+         
+        var chats = await connection.QueryAsync<UserChat, ChatGroup, Message?, User?, UserChat>(
+            queryBuilder.BuildQuery(),
+            (chat, chatGroup, message, user) =>
+            {
+                chat.GroupChat = chatGroup;
+
+                if (message is not null)
+                {
+                    message.Sender = user!;
+                    chat.LatestMessage = message;
+                }
+                
+                return chat;
+            },
+            param: queryBuilder.GetParameters(),
+            splitOn: string.Join(",", splitOn));
 
         return chats.ToList();
     }

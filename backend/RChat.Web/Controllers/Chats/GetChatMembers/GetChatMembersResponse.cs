@@ -1,4 +1,4 @@
-using RChat.Application.Members.Dtos;
+using RChat.Application.Dtos.Members;
 
 namespace RChat.Web.Controllers.Chats.GetChatMembers;
 

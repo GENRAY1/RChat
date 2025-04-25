@@ -1,5 +1,3 @@
-using RChat.Domain.Common;
-
 namespace RChat.Application.Services.Search.GlobalSearch;
 
 public interface IGlobalSearchService

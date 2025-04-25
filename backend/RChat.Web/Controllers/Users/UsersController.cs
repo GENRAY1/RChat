@@ -1,16 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Chats.GetCurrentUserChats;
-using RChat.Application.Users.CommonDtos;
-using RChat.Application.Users.Create;
-using RChat.Application.Users.GetById;
-using RChat.Application.Users.GetList;
-using RChat.Application.Users.Update;
-using RChat.Domain.Common;
+using RChat.Application.Common;
+using RChat.Application.Dtos.Users;
+using RChat.Application.Handlers.Chats.GetUserChats;
+using RChat.Application.Handlers.Users.Create;
+using RChat.Application.Handlers.Users.GetById;
+using RChat.Application.Handlers.Users.GetList;
+using RChat.Application.Handlers.Users.Update;
 using RChat.Web.Controllers.Users.Create;
-using RChat.Web.Controllers.Users.GetCurrentUserChats;
 using RChat.Web.Controllers.Users.GetList;
+using RChat.Web.Controllers.Users.GetUserChats;
 using RChat.Web.Controllers.Users.Update;
 
 namespace RChat.Web.Controllers.Users;
@@ -22,13 +22,24 @@ public class UsersController(ISender sender)
 {
     [Authorize]
     [HttpGet("me/chats")]
-    public async Task<ActionResult<GetCurrentUserChatsResponse>> GetCurrentUserChats(
+    public async Task<ActionResult<GetUserChatsResponse>> GetUserChats(
+        [FromQuery] GetUserChatsRequest request,
         CancellationToken cancellationToken)
     {
         var chats =
-            await sender.Send(new GetCurrentUserChatsQuery(), cancellationToken);
+            await sender.Send(new GetUserChatsQuery
+            {
+                SecondUserId = request.SecondUserId,
+                ChatIds = request.ChatIds,
+                Type = request.Type,
+                Pagination = new PaginationDto
+                {
+                    Skip = request.Skip,
+                    Take = request.Take
+                }
+            }, cancellationToken);
         
-        return Ok(new GetCurrentUserChatsResponse
+        return Ok(new GetUserChatsResponse
         {
             Chats = chats
         });

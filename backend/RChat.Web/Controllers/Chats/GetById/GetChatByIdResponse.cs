@@ -1,4 +1,4 @@
-using RChat.Application.Chats.Dtos;
+using RChat.Application.Dtos.Chats;
 using RChat.Domain.Chats;
 
 namespace RChat.Web.Controllers.Chats.GetById;

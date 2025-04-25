@@ -1,17 +1,19 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RChat.Application.Chats.Create;
-using RChat.Application.Chats.Dtos;
-using RChat.Application.Chats.GetById;
-using RChat.Application.Chats.GetList;
-using RChat.Application.Chats.SoftDelete;
-using RChat.Application.Chats.Update;
-using RChat.Application.Members.Dtos;
-using RChat.Application.Members.GetChatMembers;
-using RChat.Application.Messages.Dtos;
-using RChat.Application.Messages.GetChatMessages;
-using RChat.Domain.Common;
+using RChat.Application.Common;
+using RChat.Application.Dtos.Chats;
+using RChat.Application.Dtos.Members;
+using RChat.Application.Dtos.Messages;
+using RChat.Application.Handlers.Chats.Create;
+using RChat.Application.Handlers.Chats.GetById;
+using RChat.Application.Handlers.Chats.GetList;
+using RChat.Application.Handlers.Chats.SoftDelete;
+using RChat.Application.Handlers.Chats.Update;
+using RChat.Application.Handlers.Members.GetChatMembers;
+using RChat.Application.Handlers.Messages.GetChatMessages;
+using RChat.Domain.Accounts;
+using RChat.Infrastructure.Services.Authentication;
 using RChat.Web.Controllers.Chats.Create;
 using RChat.Web.Controllers.Chats.GetById;
 using RChat.Web.Controllers.Chats.GetChatMembers;
@@ -44,9 +46,9 @@ public class ChatsController(ISender sender)
             Id = chatId
         });
     }
-
-    [Authorize]
+    
     [HttpGet]
+    [RequiredRole(AccountRoleNames.Admin)]
     public async Task<ActionResult<GetChatsResponse>> GetList(
         [FromQuery] GetChatsRequest request,
         CancellationToken cancellationToken)
