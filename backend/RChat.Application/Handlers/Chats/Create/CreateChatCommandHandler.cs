@@ -18,9 +18,9 @@ public class CreateChatCommandHandler(
     IChatSearchService chatSearchService,
     IMemberRepository memberRepository,
     IBackgroundTaskQueue backgroundTaskQueue
-    ) : ICommandHandler<CreateChatCommand, int>
+    ) : ICommandHandler<CreateChatCommand, CreateChatDtoResponse>
 {
-     public async Task<int> Handle(CreateChatCommand request, CancellationToken cancellationToken)
+     public async Task<CreateChatDtoResponse> Handle(CreateChatCommand request, CancellationToken cancellationToken)
     {
         User authUser = await authContext.GetUserAsync();
         
@@ -31,8 +31,8 @@ public class CreateChatCommandHandler(
             _ => throw new ValidationException("Invalid chat type")
         };
 
-        int chatId = await creationStrategy.CreateChatAsync(request);
+        CreateChatDtoResponse response = await creationStrategy.CreateChatAsync(request);
 
-        return chatId;
+        return response;
     }
 }

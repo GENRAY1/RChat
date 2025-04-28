@@ -6,6 +6,7 @@ using RChat.Application.Extensions.Messages;
 using RChat.Application.Services.Authentication;
 using RChat.Domain.Accounts;
 using RChat.Domain.Chats;
+using RChat.Domain.Chats.Repository;
 using RChat.Domain.Members;
 using RChat.Domain.Members.Repository;
 using RChat.Domain.Messages;
@@ -15,6 +16,7 @@ using RChat.Domain.Users;
 namespace RChat.Application.Handlers.Messages.GetChatMessages;
 
 public class GetChatMessagesQueryHandler(
+    IChatRepository chatRepository,
     IMessageRepository messageRepository,
     IMemberRepository memberRepository,
     IAuthContext authContext
@@ -22,6 +24,12 @@ public class GetChatMessagesQueryHandler(
 {
     public async Task<List<MessageDto>> Handle(GetChatMessagesQuery request, CancellationToken cancellationToken)
     {
+        Chat? chat = 
+            await chatRepository.GetByIdAsync(request.ChatId); 
+        
+        if(chat is null)
+            throw new EntityNotFoundException(nameof(Chat), request.ChatId);
+        
         var parameters = new GetMessageListParameters
         {
             ChatId = request.ChatId,
@@ -37,14 +45,20 @@ public class GetChatMessagesQueryHandler(
         {
             User authUser = await authContext.GetUserAsync();
             
-            Member? member = await memberRepository.GetAsync(new GetMemberParameters
+            if(chat.DeletedAt is not null)
+                throw new ChatDeletedException();
+
+            if (chat.IsClosed)
             {
-                ChatId = request.ChatId,
-                UserId = authUser.Id
-            });
+                Member? member = await memberRepository.GetAsync(new GetMemberParameters
+                {
+                    ChatId = request.ChatId,
+                    UserId = authUser.Id
+                });
             
-            if (member is null)
-                throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
+                if (member is null)
+                    throw new UserAccessDeniedException(authUser.Id, nameof(Chat), request.ChatId);
+            }
             
             parameters.OnlyActive = true;
         }

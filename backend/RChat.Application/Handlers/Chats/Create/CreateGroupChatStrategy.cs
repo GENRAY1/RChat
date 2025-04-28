@@ -1,4 +1,5 @@
 using RChat.Application.Exceptions;
+using RChat.Application.Extensions.Chats;
 using RChat.Application.Services.BackgroundTaskQueue;
 using RChat.Application.Services.Search.Chat;
 using RChat.Domain.Chats;
@@ -17,14 +18,14 @@ public class CreateGroupChatStrategy(
     IBackgroundTaskQueue backgroundTaskQueue
     ) : IChatCreationStrategy
 {
-    public async Task<int> CreateChatAsync(CreateChatCommand request)
+    public async Task<CreateChatDtoResponse> CreateChatAsync(CreateChatCommand request)
     {
         if(request.GroupDetails is null)
             throw new ValidationException("Chat chat must have group details");
         
         DateTime now = DateTime.UtcNow;
 
-        Chat chat = new Chat
+        Chat newChat = new Chat
         {
             CreatedAt = now,
             CreatorId = creator.Id,
@@ -37,11 +38,11 @@ public class CreateGroupChatStrategy(
             }
         };
         
-        chat.Id = await chatRepository.CreateAsync(chat);
+        newChat.Id = await chatRepository.CreateAsync(newChat);
         
         backgroundTaskQueue.Enqueue(async token =>
         {
-            await chatSearchService.IndexAsync(chat.Id, new ChatDocument
+            await chatSearchService.IndexAsync(newChat.Id, new ChatDocument
             {
                 Type = request.Type,
                 Name = request.GroupDetails.Name,
@@ -51,11 +52,19 @@ public class CreateGroupChatStrategy(
         
         await memberRepository.CreateAsync(new Member
         {
-            ChatId = chat.Id,
+            ChatId = newChat.Id,
             UserId = creator.Id,
             JoinedAt = now
         });
         
-        return chat.Id;
+        return new CreateChatDtoResponse
+        {
+            Id = newChat.Id,
+            Type = newChat.Type,
+            CreatorId = newChat.CreatorId,
+            GroupChat = newChat.GroupChat.MappingToDto(),
+            CreatedAt = newChat.CreatedAt,
+            MemberCount = 1
+        };;
     }
 }

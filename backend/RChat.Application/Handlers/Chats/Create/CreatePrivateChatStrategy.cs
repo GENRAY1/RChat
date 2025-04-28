@@ -1,3 +1,4 @@
+using RChat.Application.Dtos.Chats;
 using RChat.Application.Exceptions;
 using RChat.Domain.Chats;
 using RChat.Domain.Chats.Repository;
@@ -15,7 +16,7 @@ public class CreatePrivateChatStrategy(
     IMemberRepository memberRepository)
     : IChatCreationStrategy
 {
-    public async Task<int> CreateChatAsync(CreateChatCommand request)
+    public async Task<CreateChatDtoResponse> CreateChatAsync(CreateChatCommand request)
     {
         if (request.RecipientId is null)
             throw new ValidationException("Private chat must have a recipient");
@@ -36,16 +37,27 @@ public class CreatePrivateChatStrategy(
         
         var now = DateTime.UtcNow;
 
-        var chatId = await chatRepository.CreateAsync(new Chat
+        Chat newChat = new Chat
         {
             Type = ChatType.Private,
             CreatorId = creator.Id,
             CreatedAt = now
-        });
+        };
+        
+        int chatId = await chatRepository.CreateAsync(newChat);
+        
+        List<PrivateChatMemberDto> privateChatMembers = 
+            await AddPrivateChatMembers(chatId, now, recipient, creator);
 
-        await AddChatMembers(chatId, now, creator.Id, recipient.Id);
-
-        return chatId;
+        return new CreateChatDtoResponse
+        {
+            Id = chatId,
+            Type = newChat.Type,
+            CreatorId = newChat.CreatorId,
+            CreatedAt = newChat.CreatedAt,
+            MemberCount = privateChatMembers.Count,
+            PrivateChatMembers = privateChatMembers
+        };
     }
 
     private async Task<bool> HasSharedPrivateChat(int firstUserId, int secondUserId)
@@ -81,19 +93,34 @@ public class CreatePrivateChatStrategy(
         return sharedPrivateChats.Any();
     }
     
-    private async Task AddChatMembers(
+    private async Task<List<PrivateChatMemberDto>> AddPrivateChatMembers(
         int chatId,
         DateTime now,
-        params int[] userIds)
+        params User[] users)
     {
-        var members = userIds.Select(userId =>
-            new Member
+        List<PrivateChatMemberDto> result = []; 
+        
+        foreach (var u in users)
+        {
+            Member member = new Member
             {
                 ChatId = chatId,
-                UserId = userId,
+                UserId = u.Id,
                 JoinedAt = now
-            }).ToList();
+            };
 
-        await memberRepository.CreateAsync(members);
+            int memberId = await memberRepository.CreateAsync(member);
+            
+            result.Add(new PrivateChatMemberDto
+            {
+                MemberId = memberId,
+                UserId = u.Id,
+                Firstname = u.Firstname,
+                Lastname = u.Lastname,
+                Username = u.Username,
+            });
+        }
+
+        return result;
     }
 }
