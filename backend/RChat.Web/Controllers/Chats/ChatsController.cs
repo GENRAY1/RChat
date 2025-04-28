@@ -30,21 +30,18 @@ public class ChatsController(ISender sender)
 {
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<CreateChatResponse>> CreateChat(
+    public async Task<ActionResult<CreateChatDtoResponse>> CreateChat(
         [FromBody] CreateChatRequest request,
         CancellationToken cancellationToken)
     {
-        var chatId = await sender.Send(new CreateChatCommand
+        var response = await sender.Send(new CreateChatCommand
         {
             RecipientId = request.RecipientId,
             Type = request.Type,
             GroupDetails = request.GroupChat
         }, cancellationToken);
 
-        return Ok(new CreateChatResponse
-        {
-            Id = chatId
-        });
+        return Ok(response);
     }
     
     [HttpGet]

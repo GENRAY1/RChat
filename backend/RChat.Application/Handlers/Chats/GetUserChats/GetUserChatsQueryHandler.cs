@@ -31,47 +31,7 @@ public class GetUserChatsQueryHandler(
                 Type = request.Type
             });
 
-        int[] privateChatIds = chats
-            .Select(c => c.Id)
-            .ToArray();
-
-        Dictionary<int, PrivateChatMembersDto>? privateChatMembers = null;
-
-        if (privateChatIds.Any())
-        {
-            var members =
-                await memberRepository.GetListAsync(new GetMemberListParameters
-                {
-                    ChatIds = privateChatIds
-                });
-
-            privateChatMembers = members
-                .GroupBy(g => g.ChatId)
-                .Where(g => g.Count() == 2)
-                .ToDictionary(
-                    g => g.Key,
-                    g => new PrivateChatMembersDto
-                    {
-                        FirstMember = g.Select(m => new PrivateChatMemberDto
-                        {
-                            MemberId = m.Id,
-                            UserId = m.UserId,
-                            Firstname = m.User.Firstname,
-                            Lastname = m.User.Lastname,
-                            Username = m.User.Username
-                        }).First(),
-
-                        SecondMember = g.Select(m => new PrivateChatMemberDto
-                        {
-                            MemberId = m.Id,
-                            UserId = m.UserId,
-                            Firstname = m.User.Firstname,
-                            Lastname = m.User.Lastname,
-                            Username = m.User.Username
-                        }).Skip(1).First()
-                    }
-                );
-        };
+        ILookup<int, PrivateChatMemberDto>? privateChatMembers = await GetPrivateChatMembers(chats);
 
         return chats.Select(c => new UserChatDto
         {
@@ -81,8 +41,35 @@ public class GetUserChatsQueryHandler(
             CreatedAt = c.CreatedAt,
             MemberCount = c.MemberCount,
             GroupChat = c.GroupChat?.MappingToDto(),
-            PrivateChatMembers = privateChatMembers?.GetValueOrDefault(c.Id),
+            PrivateChatMembers = c.Type == ChatType.Private 
+                ? privateChatMembers?[c.Id].ToList()
+                : null,
             LatestMessage = c.LatestMessage?.MappingToDto(),
         }).ToList();
+    }
+
+    private async Task<ILookup<int, PrivateChatMemberDto>?> GetPrivateChatMembers(List<UserChat> chats)
+    {
+        var privateChatIds = chats
+            .Where(c => c.Type == ChatType.Private)
+            .Select(c => c.Id)
+            .ToArray();
+
+        if (!privateChatIds.Any()) return null;
+
+        var members = await memberRepository.GetListAsync(
+            new GetMemberListParameters
+            {
+                ChatIds = privateChatIds
+            });
+
+        return members.ToLookup(m => m.ChatId, m => new PrivateChatMemberDto
+        {
+            MemberId = m.Id,
+            UserId = m.UserId,
+            Firstname = m.User.Firstname,
+            Lastname = m.User.Lastname,
+            Username = m.User.Username
+        });
     }
 }

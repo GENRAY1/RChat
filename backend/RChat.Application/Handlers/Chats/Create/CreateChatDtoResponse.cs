@@ -1,9 +1,9 @@
-using RChat.Application.Dtos.Messages;
+using RChat.Application.Dtos.Chats;
 using RChat.Domain.Chats;
 
-namespace RChat.Application.Dtos.Chats;
+namespace RChat.Application.Handlers.Chats.Create;
 
-public class UserChatDto
+public class CreateChatDtoResponse
 {
     public int Id { get; set; }
     public ChatType Type { get; init; }
@@ -12,5 +12,4 @@ public class UserChatDto
     public int MemberCount { get; init; }
     public ChatGroupDto? GroupChat { get; init; }
     public List<PrivateChatMemberDto>? PrivateChatMembers { get; init; } 
-    public MessageDto? LatestMessage { get; init; }
 }
