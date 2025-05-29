@@ -1,13 +1,15 @@
 import styles from './MessageInputArea.module.css';
-import {ChangeEvent, useRef, useState} from "react";
+import {ChangeEvent, FC, KeyboardEvent, useRef, useState} from "react";
 import SendMessageIcon from "../../../../shared/component-icons/SendMessageIcon.tsx";
-import {MessageService} from "../../../../api/message-service/MessageService.ts";
-import useChatStore from "../../../../store/chat-store/chat-store.ts";
 
-const MessageInputArea = () => {
+interface MessageInputAreaProps{
+    sendMessage: (message:string) => Promise<void>;
+}
+
+const MessageInputArea : FC<MessageInputAreaProps> = ({sendMessage}) => {
     const [text, setText] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const activeChat = useChatStore(state => state.activeChat);
+
 
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
@@ -17,25 +19,22 @@ const MessageInputArea = () => {
         }
     };
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleKeyDown = async (event: KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            sendMessage();
+            await send();
         }
     };
 
-    const sendMessage = async (): Promise<void> => {
-        if (text.trim() && activeChat) {
+    const send = async (): Promise<void> => {
+        if (text.trim()) {
             setText('');
             if (textareaRef.current) {
                 textareaRef.current.style.height = 'auto';
             }
-            await MessageService.CreateMessage({
-
-                text,
-                chatId: activeChat.id
-            })
         }
+
+        await sendMessage(text.trim())
     }
 
     return (
@@ -48,7 +47,7 @@ const MessageInputArea = () => {
                 onKeyDown={handleKeyDown}
                 placeholder="Напишите сообщение..."
             />
-            <button className={styles.sendButton} onClick={() => sendMessage()}>
+            <button className={styles.sendButton} onClick={async () => await send()}>
                 <SendMessageIcon className={styles.sendIcon}/>
             </button>
         </div>

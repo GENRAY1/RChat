@@ -1,4 +1,4 @@
-export enum GlobalSearchType {
+export enum GlobalSearchItemType {
     User = 'User',
     Chat = 'Chat'
 }

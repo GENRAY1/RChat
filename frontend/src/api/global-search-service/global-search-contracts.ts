@@ -1,5 +1,5 @@
-import {ChatSearchItem} from "../../models/global-search/ChatSearchItem.ts";
-import {UserSearchItem} from "../../models/global-search/UserSearchItem.ts";
+import {ChatSearchItem, UserSearchItem} from "../../models/global-search/GlobalSearchItem.ts";
+
 
 export interface GlobalSearchResponse{
     chats: Array<ChatSearchItem>,

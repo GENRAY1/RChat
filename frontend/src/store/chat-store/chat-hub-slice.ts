@@ -8,6 +8,7 @@ export interface ChatHubSlice {
     isConnected: boolean;
     startConnection: (accessToken:string) => Promise<void>;
     stopConnection: () => Promise<void>;
+    joinChat: (chatId: number) => Promise<void>;
 }
 
 const CHAT_HUB_URL:string = "http://localhost:5213/hubs/chat"
@@ -38,7 +39,7 @@ const chatHubSlice: StateCreator<ChatStore, [], [], ChatHubSlice> = (set,get) =>
                 .build();
 
             connection.on(ChatHubEvents.ReceiveMessage, (message: Message) => {
-                const {activeChat, appendMessage, updateUserChatLatestMessage} = get();
+                const {dialogData, appendMessage, updateUserChatLatestMessage} = get();
 
                 //For fix dates
                 const newMessage : Message = {
@@ -52,7 +53,7 @@ const chatHubSlice: StateCreator<ChatStore, [], [], ChatHubSlice> = (set,get) =>
                         : undefined
                 }
 
-                if(activeChat){
+                if(dialogData?.currentChat?.id){
                     appendMessage(newMessage)
                 }
 
@@ -80,6 +81,17 @@ const chatHubSlice: StateCreator<ChatStore, [], [], ChatHubSlice> = (set,get) =>
             console.log("CHAT HUB disconnected");
         }else {
             console.log("CHAT HUB is already disconnected");
+        }
+    },
+    joinChat: async (chatId: number) => {
+        const { connection } = get();
+
+        try {
+            if (!connection) return;
+            await connection.invoke("JoinChat", chatId);
+            console.log(`Joined chat ${chatId}`);
+        } catch (err) {
+            console.error("Join chat error: ", err);
         }
     }
 });

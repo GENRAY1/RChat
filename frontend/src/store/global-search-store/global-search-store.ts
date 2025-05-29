@@ -1,13 +1,12 @@
 import {create} from "zustand";
 import {GlobalSearchMessage} from "../../models/global-search/GlobalSearchMessage.ts";
-import {ChatSearchItem} from "../../models/global-search/ChatSearchItem.ts";
-import {UserSearchItem} from "../../models/global-search/UserSearchItem.ts";
 import {debounce} from "lodash";
 import {GlobalSearchService} from "../../api/global-search-service/GlobalSearchService.ts";
+import {GlobalSearchItem} from "../../models/global-search/GlobalSearchItem.ts";
 
 interface SearchState {
     query: string;
-    items: Array<ChatSearchItem | UserSearchItem>;
+    items: Array<GlobalSearchItem>;
     isOverlayActive: boolean;
     search: (query: string) => Promise<void>;
     openOverlay: ()=> void;
@@ -79,6 +78,8 @@ const useGlobalSearchState = create<SearchState>((set) => {
             debouncedSearch.cancel();
         },
     }
+
+
 });
 
 export default useGlobalSearchState;

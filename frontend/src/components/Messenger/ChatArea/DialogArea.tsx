@@ -1,15 +1,20 @@
-import styles from "./ChatArea.module.css"
+import styles from "./DialogArea.module.css"
 import MessageItem from "./MessageItem/MessageItem.tsx";
 import MessageInputArea from "./MessageInputArea/MessageInputArea.tsx";
 import useChatStore from "../../../store/chat-store/chat-store.ts";
-import {FC, useContext, useEffect, useRef} from "react";
+import {FC, useCallback, useContext, useEffect, useRef} from "react";
 import AuthContext, {AuthContextValue} from "../../../features/auth/AuthContext.ts";
+import {ChatType} from "../../../models/chat/ChatType.ts";
+import DialogButton from "./DialogButton/DialogButton.tsx";
+import {MessageService} from "../../../api/message-service/MessageService.ts";
 
-const ChatArea: FC = () => {
+const DialogArea: FC = () => {
     const messages = useChatStore((store) => store.messages);
-    const activeChat = useChatStore((store) => store.activeChat);
+    const dialogData = useChatStore((store) => store.dialogData);
     const fetchMessages = useChatStore((store) => store.fetchMessages);
     const lastAppendMessageId = useChatStore((store) => store.lastAppendMessageId);
+    const subscribe = useChatStore(s => s.subscribe);
+    const createChat = useChatStore(s=> s.createChat);
     const authContext = useContext<AuthContextValue>(AuthContext)
 
 
@@ -19,9 +24,10 @@ const ChatArea: FC = () => {
 
 
     useEffect(() => {
+        const chatId = dialogData?.currentChat?.id
         const anchor = topAnchorRef.current;
         const container = messageListRef.current;
-        if (!anchor || !container) return;
+        if (!anchor || !container || !chatId ) return;
 
         const handleScroll = () => {
             const threshold = 50; // px
@@ -34,14 +40,12 @@ const ChatArea: FC = () => {
         const observer = new IntersectionObserver(
             async ([entry]) => {
                 if (entry.isIntersecting) {
-                    const hasMoreMessages = useChatStore.getState().hasMoreMessages;
-                    const isLoadingMessages = useChatStore.getState().isLoadingMessages;
-
+                    const {hasMoreMessages, isLoadingMessages, skipMessages} = useChatStore.getState();
 
                     if (hasMoreMessages && !isLoadingMessages) {
                         const prevScrollHeight = container.scrollHeight;
 
-                        await fetchMessages();
+                        await fetchMessages(chatId, skipMessages);
 
                         requestAnimationFrame(() => {
                             const newScrollHeight = container.scrollHeight;
@@ -62,8 +66,9 @@ const ChatArea: FC = () => {
         return () => {
             observer.disconnect();
             container.removeEventListener('scroll', handleScroll);
+            console.log("observer disconnect ")
         };
-    }, [fetchMessages, activeChat?.id]);
+    }, [fetchMessages, dialogData?.currentChat?.id]);
 
 
     useEffect(() => {
@@ -77,7 +82,26 @@ const ChatArea: FC = () => {
         }
     }, [lastAppendMessageId]);
 
-    if (!activeChat) {
+    const sendMessage = useCallback(async (text:string)=>{
+        if(!dialogData)
+            throw Error("Failed to retrieve dialog information")
+
+        let chatId = dialogData.currentChat?.id;
+
+        if (!chatId && dialogData.userId && dialogData.needCreatePrivateChat){
+            const chat = await createChat({type: ChatType.Private, recipientId: dialogData.userId});
+            chatId = chat.id;
+        }
+
+        if(!chatId)
+            throw Error("Failed to retrieve chat information")
+
+        await MessageService.CreateMessage({text, chatId})
+        
+    }, [dialogData, createChat]);
+
+
+    if (!dialogData) {
         return (
             <div className={styles.informBox}>
                 <div className={styles.informText}>Select a chat to start messaging</div>
@@ -85,11 +109,17 @@ const ChatArea: FC = () => {
         );
     }
 
+    console.log(dialogData?.currentChat?.memberCount)
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.chatName}>{activeChat.displayName}</div>
-                <div className={styles.onlineInfo}>{activeChat.type}</div>
+                <div className={styles.chatName}>{dialogData.displayName}</div>
+                <div className={styles.onlineInfo}>
+                    {dialogData.currentChat?.type === ChatType.Group
+                        ? `${dialogData.currentChat.memberCount} members`
+                        : dialogData.currentChat?.type ?? "-"}
+                </div>
             </div>
             <div className={styles.messageList} ref={messageListRef}>
                 <div ref={topAnchorRef}/>
@@ -98,10 +128,13 @@ const ChatArea: FC = () => {
                 ))}
             </div>
             <div className={styles.bottom}>
-                <MessageInputArea />
+                {dialogData.currentChat?.type === ChatType.Group && !dialogData.currentChat.hasSubscription
+                    ? <DialogButton text={"join group"} onClick={() => subscribe(dialogData.currentChat!.id)}/>
+                    : <MessageInputArea sendMessage={sendMessage}/>
+                }
             </div>
         </div>
     );
 };
 
-export default ChatArea;
+export default DialogArea;

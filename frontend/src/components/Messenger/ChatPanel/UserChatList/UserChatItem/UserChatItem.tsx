@@ -5,36 +5,50 @@ import NameAvatar from "../../../../../shared/ui/NameAvatar/NameAvatar.tsx";
 import GroupChatIcon from "../../../../../shared/component-icons/GroupChatIcon.tsx";
 import {getDateOnly, getTimeOnly, isToday} from "../../../../../shared/utils/date-utils.ts";
 import {UserChat} from "../../../../../models/chat/UserChat.ts";
+import {getDisplayName} from "../../../../../features/chat-features.tsx";
 
 export interface UserChatItemProps {
-    chat: UserChat,
-    isLastMessageOutgoing: boolean,
-    isActive: boolean;
-    onActivate: (chat: UserChat) => void;
+    chat: UserChat;
+    authUserId: number;
+    isSelected: boolean;
+    selectDialog: (userChat: UserChat, displayName: string, info: string) => void;
 }
 
-function getChatTimestampStr(date: Date){
-    if(isToday(date))
+function getChatTimestampStr(date: Date) : string {
+    if (isToday(date))
         return getTimeOnly(date)
 
     return getDateOnly(date)
 }
 
-const UserChatItem: FC<UserChatItemProps> = ({chat, isLastMessageOutgoing, isActive, onActivate}) => {
-    const timestamp : Date = chat.latestMessage?.createdAt ?? chat.createdAt
-
-    const message = chat.latestMessage
+const UserChatItem: FC<UserChatItemProps> = ({chat, authUserId, isSelected, selectDialog}) => {
+    const Message = chat.latestMessage
         ? <div className={styles.lastMessageText}>{chat.latestMessage.text}</div>
         : <div className={`${styles.lastMessageText} ${styles.primaryText}`}>Chat created</div>
 
+    const isLastMessageOutgoing : boolean = chat.latestMessage
+        ? authUserId === chat.latestMessage.sender.userId
+        : false
+
+    const timestamp : Date = chat.latestMessage?.createdAt ?? chat.createdAt
+
+    const displayName:string = getDisplayName(chat, authUserId) ?? ""
+
+    function handleSelectItem(){
+
+        if(isSelected) return
+
+        selectDialog(chat, displayName, "-")
+    }
+
     return (
-        <div className={`${styles.userChatItem} ${isActive  ? styles.userChatItemActive : ""}` } onClick={()=> onActivate(chat)}>
-            <NameAvatar name={chat.displayName} size={58} fontSize={16}/>
+        <div className={`${styles.userChatItem} ${isSelected  ? styles.userChatItemActive : ""}` } onClick={handleSelectItem}>
+            <NameAvatar name={displayName} size={58} fontSize={16}/>
             <div className={styles.chatContent}>
                 <div className={styles.chatHeader}>
                     <div className={styles.chatTitle}>
                         {chat.type === ChatType.Group && <GroupChatIcon className={styles.chatIcon}></GroupChatIcon>}
-                        <span className={styles.chatName}>{chat.displayName}</span>
+                        <span className={styles.chatName}>{displayName}</span>
                     </div>
                     <span className={styles.chatTimestamp}>
                         {getChatTimestampStr(timestamp)}
@@ -46,7 +60,7 @@ const UserChatItem: FC<UserChatItemProps> = ({chat, isLastMessageOutgoing, isAct
                         <div className={styles.primaryText}>
                             {isLastMessageOutgoing && chat.latestMessage ? "You" : chat.latestMessage?.sender.firstname}:
                         </div>}
-                    {message}
+                    {Message}
                 </div>
             </div>
         </div>
@@ -58,7 +72,7 @@ const UserChatItem: FC<UserChatItemProps> = ({chat, isLastMessageOutgoing, isAct
 export default memo(UserChatItem, (prev, next) => {
     return (
         prev.chat === next.chat &&
-        prev.isLastMessageOutgoing === next.isLastMessageOutgoing &&
-        prev.isActive === next.isActive
+        prev.authUserId === next.authUserId &&
+        prev.isSelected === next.isSelected
     );
 });

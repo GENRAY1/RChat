@@ -7,5 +7,6 @@ export interface Chat {
     creatorId: number;
     createdAt: Date;
     deletedAt?: Date;
+    memberCount: number;
     groupChat?: ChatGroup;
 }

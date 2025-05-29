@@ -7,8 +7,8 @@ import AuthContext, {AuthContextValue} from "../../../../features/auth/AuthConte
 const UserChatList : FC = () => {
     const fetchUserChats = useChatStore(store => store.fetchUserChats)
     const errorMessage  = useChatStore(store => store.fetchUserChatsErrorMsg)
-    const activateChat = useChatStore(store => store.activateChat);
-    const activeChatId = useChatStore(store => store.activeChat?.id);
+    const activeChatId = useChatStore(store => store.dialogData?.currentChat?.id);
+    const selectDialog = useChatStore(store => store.selectDialogFromUserChats)
     const userChats = useChatStore(state => state.userChats);
     const userChatFilter = useChatStore(state => state.userChatTypeFilter);
     const {data} : AuthContextValue = useContext<AuthContextValue>(AuthContext)
@@ -23,22 +23,19 @@ const UserChatList : FC = () => {
         return userChats.filter(chat => chat.type === userChatFilter);
     }, [userChats, userChatFilter])
 
-
-    const userChatElements = filteredChats.map((chat) =>
-        <UserChatItem
-            key={chat.id}
-            chat={chat}
-            isLastMessageOutgoing={chat.latestMessage ? data.user?.id === chat.latestMessage.sender.userId : false}
-            isActive={chat.id === activeChatId}
-            onActivate={activateChat}
-        />);
+    if(errorMessage)
+        return <div>{errorMessage}</div>
 
     return (
         <div>
-            {
-                errorMessage
-                ? <div>{errorMessage}</div>
-                : userChatElements
+            {filteredChats.map((chat) =>
+                <UserChatItem
+                    key={chat.id}
+                    chat={chat}
+                    authUserId={data.user!.id}
+                    isSelected={chat.id === activeChatId}
+                    selectDialog={selectDialog}
+                />)
             }
         </div>
     );

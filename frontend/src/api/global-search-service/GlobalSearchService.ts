@@ -1,9 +1,9 @@
 import {AxiosResponse} from "axios";
 import {apiClient} from "../api-client.ts";
 import {GlobalSearchRequest, GlobalSearchResponse} from "./global-search-contracts.ts";
-import {UserSearchItem} from "../../models/global-search/UserSearchItem.ts";
-import {ChatSearchItem} from "../../models/global-search/ChatSearchItem.ts";
-import {GlobalSearchType} from "../../models/global-search/GlobalSearchType.ts";
+
+import {GlobalSearchItemType} from "../../models/global-search/GlobalSearchItemType.ts";
+import {ChatSearchItem, UserSearchItem} from "../../models/global-search/GlobalSearchItem.ts";
 
 export class GlobalSearchService {
     private static readonly path: string = 'globalSearch';
@@ -15,11 +15,11 @@ export class GlobalSearchService {
         response.data = {
             chats: response.data.chats.map((chat): ChatSearchItem => ({
                 ...chat,
-                __type: GlobalSearchType.Chat,
+                itemType: GlobalSearchItemType.Chat,
             })),
             users: response.data.users.map((user): UserSearchItem => ({
                 ...user,
-                __type: GlobalSearchType.User
+                itemType: GlobalSearchItemType.User
             })),
         };
 

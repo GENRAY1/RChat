@@ -1,15 +1,16 @@
 import { create } from 'zustand'
-import activeChatSlice, {ActiveChatSlice} from "./active-chat-slice.ts";
 import userChatsSlice, {UserChatsSlice} from "./user-chats-slice.ts";
 import chatHubSlice, {ChatHubSlice} from "./chat-hub-slice.ts";
+import dialogAreaSlice, {DialogAreaSlice} from "./dialog-area-slice.ts";
 
 
-export type ChatStore = ActiveChatSlice & UserChatsSlice & ChatHubSlice;
+export type ChatStore = //ActiveChatSlice
+    & UserChatsSlice & ChatHubSlice & DialogAreaSlice;
 
 const useChatStore = create<ChatStore>((set, get, store) => ({
-    ...activeChatSlice(set, get, store),
     ...userChatsSlice(set, get, store),
     ...chatHubSlice(set, get, store),
+    ...dialogAreaSlice(set, get, store),
 }));
 
 

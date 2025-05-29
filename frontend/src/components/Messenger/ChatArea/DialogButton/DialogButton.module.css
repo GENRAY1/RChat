@@ -1,0 +1,15 @@
+.container{
+    width: 100%;
+    padding: 18px 0;
+    outline: none;
+    border: none;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 14px;
+    background:#fff;
+    color: #419FD9
+}
+
+.container:hover{
+    background: #f8f5f5;
+}

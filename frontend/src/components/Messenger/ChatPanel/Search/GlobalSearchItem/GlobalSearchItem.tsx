@@ -1,29 +1,38 @@
-import {FC} from 'react';
+import {FC, memo} from 'react';
 import NameAvatar from "../../../../../shared/ui/NameAvatar/NameAvatar.tsx";
 import styles from "./GlobalSearchItem.module.css"
 import GroupChatIcon from "../../../../../shared/component-icons/GroupChatIcon.tsx";
-import {ChatSearchItem, isChatSearchItem} from "../../../../../models/global-search/ChatSearchItem.ts";
-import {isUserSearchItem, UserSearchItem} from "../../../../../models/global-search/UserSearchItem.ts";
 import {ChatType} from "../../../../../models/chat/ChatType.ts";
+import {GlobalSearchItemType} from "../../../../../models/global-search/GlobalSearchItemType.ts";
+import {GlobalSearchItem} from "../../../../../models/global-search/GlobalSearchItem.ts";
 
 export interface GlobalSearchItemProps {
-    item: ChatSearchItem | UserSearchItem
+    item: GlobalSearchItem;
+    isSelected: boolean;
+    selectDialog: (searchType: GlobalSearchItem, displayName: string) => Promise<void>;
 }
 
-const GlobalSearchItemComponent:FC<GlobalSearchItemProps> = ({item}) => {
+const GlobalSearchItemComponent:FC<GlobalSearchItemProps> = ({item, selectDialog, isSelected}) => {
 
-    const displayName:string = isUserSearchItem(item)
+    const displayName:string = item.itemType === GlobalSearchItemType.User
         ? `${item.firstname} ${item.lastname || ''}`.trim()
         : item.name
 
-    const info : string = isUserSearchItem(item)
+    const info : string = item.itemType === GlobalSearchItemType.User
         ?`@${item.username}`
         : `${item.memberCount} members`;
 
-    const isGroup = isChatSearchItem(item) && item.type === ChatType.Group
+    const isGroup = item.itemType === GlobalSearchItemType.Chat && item.type === ChatType.Group
+
+    async function handleSelectItem (){
+
+        if(isSelected) return
+
+        await selectDialog(item, displayName)
+    }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container} onClick={handleSelectItem}>
             <NameAvatar fontSize={15} size={48} className={styles.avatar} name={displayName}/>
             <div className={styles.content}>
                 <div className={styles.contentHeader}>
@@ -37,4 +46,4 @@ const GlobalSearchItemComponent:FC<GlobalSearchItemProps> = ({item}) => {
     );
 };
 
-export default GlobalSearchItemComponent;
+export default memo(GlobalSearchItemComponent);
